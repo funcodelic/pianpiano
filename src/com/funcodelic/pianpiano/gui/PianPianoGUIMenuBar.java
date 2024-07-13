@@ -1,9 +1,6 @@
 package com.funcodelic.pianpiano.gui;
 
 import javax.swing.*;
-
-import java.awt.GraphicsDevice;
-import java.awt.GraphicsEnvironment;
 import java.awt.event.*;
 
 //
@@ -13,10 +10,10 @@ import java.awt.event.*;
 //
 class PianPianoGUIMenuBar extends JMenuBar {
 	
-	private PianPianoEditorGUI theGui;
+	private ScoreBuilderGUI theGui;
 
-    public PianPianoGUIMenuBar( PianPianoEditorGUI gui ) {
-    	// Store the handle to the GUI
+    public PianPianoGUIMenuBar( ScoreBuilderGUI gui ) {
+    	// Store the GUI
     	this.theGui = gui;
     	
         // Create the menus
@@ -43,7 +40,20 @@ class PianPianoGUIMenuBar extends JMenuBar {
         // Set the mnemonic for the File menu to 'F'
         fileMenu.setMnemonic(KeyEvent.VK_F);
         
+        //
+        // Create a menu item and accelerator for creating a new score to build
+        //
+        JMenuItem newScoreMenuItem = new JMenuItem("Build New Score");
+        newScoreMenuItem.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_B, modifier));
+        newScoreMenuItem.addActionListener(e -> {
+        	// Create a new score
+        	theGui.createNewScore();
+        });
+        
+        
+        //
         // For debugging, create an accelerator to print out the viewport info
+        //
         JMenuItem printMenuItem = new JMenuItem("Print");
         printMenuItem.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_P, modifier));
 
@@ -52,6 +62,8 @@ class PianPianoGUIMenuBar extends JMenuBar {
         	theGui.printViewportInfo();
         });
         
+        fileMenu.add(newScoreMenuItem);
+        fileMenu.addSeparator();
         fileMenu.add(new JMenuItem("New"));
         fileMenu.add(new JMenuItem("Open"));
         fileMenu.add(new JMenuItem("Save"));
@@ -95,9 +107,9 @@ class PianPianoGUIMenuBar extends JMenuBar {
         viewMenu.setMnemonic(KeyEvent.VK_V);
         
         // Create menu items to show/hide panels other than the editor panel
-        JCheckBoxMenuItem showNavItem = new JCheckBoxMenuItem("Show Navigation");
+        JCheckBoxMenuItem showNavItem = new JCheckBoxMenuItem("Show Navigator");
         showNavItem.setSelected(true);
-        JCheckBoxMenuItem showUtilItem = new JCheckBoxMenuItem("Show Utility");
+        JCheckBoxMenuItem showUtilItem = new JCheckBoxMenuItem("Show Inspector");
         showUtilItem.setSelected(true);
         JCheckBoxMenuItem showToolBarItem = new JCheckBoxMenuItem("Show Toolbar");
         showToolBarItem.setSelected(true);
@@ -131,9 +143,7 @@ class PianPianoGUIMenuBar extends JMenuBar {
             theGui.repaint();
         });
         
-        //
         // Create zoom in/out items and configure their accelerators and action listeners
-        //
         JMenuItem zoomInMenuItem = new JMenuItem("Zoom In");
         JMenuItem zoomOutMenuItem = new JMenuItem("Zoom Out");
 
