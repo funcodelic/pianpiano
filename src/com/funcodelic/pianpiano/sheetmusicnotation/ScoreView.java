@@ -1,3 +1,4 @@
+
 package com.funcodelic.pianpiano.sheetmusicnotation;
 
 import java.awt.*;
@@ -13,6 +14,8 @@ class ScoreView extends JPanel {
 	JLabel nameLabel;
 	JLabel composerTitleLabel;
 	JLabel composerLabel;
+	JLabel numPagesTitleLabel;
+	JLabel numPagesLabel;
 	
 	
 	// C'tor
@@ -22,10 +25,13 @@ class ScoreView extends JPanel {
 		nameLabel= new JLabel();
 		composerTitleLabel = new JLabel("Composer:");
 		composerLabel = new JLabel();
+		numPagesTitleLabel = new JLabel("Pages:");
+		numPagesLabel = new JLabel();
 		
-		// Center-align the name and composer name labels
+		// Center-align the name, composer, and page number labels
 		nameLabel.setHorizontalAlignment(SwingConstants.CENTER);
 		composerLabel.setHorizontalAlignment(SwingConstants.CENTER);
+		numPagesLabel.setHorizontalAlignment(SwingConstants.CENTER);
 		
 		// Set the font to the label
 		Font titleFont = new Font("Arial", Font.PLAIN, 20);
@@ -34,17 +40,22 @@ class ScoreView extends JPanel {
 		nameLabel.setFont(nameFont);
 		composerTitleLabel.setFont(titleFont);
 		composerLabel.setFont(nameFont);
+		numPagesTitleLabel.setFont(titleFont);
+		numPagesLabel.setFont(nameFont);
 		
 		// Set the title text color
 		nameTitleLabel.setForeground(Color.DARK_GRAY);
 		composerTitleLabel.setForeground(Color.DARK_GRAY);
+		numPagesTitleLabel.setForeground(Color.DARK_GRAY);
 
 		// Add the labels
-		setLayout(new GridLayout(4, 1));
+		setLayout(new GridLayout(6, 1));
 		add(nameTitleLabel);
 		add(nameLabel);
 		add(composerTitleLabel);
 		add(composerLabel);
+		add(numPagesTitleLabel);
+		add(numPagesLabel);
 		
 		// Set the background color
         setBackground(Color.LIGHT_GRAY);
@@ -61,5 +72,13 @@ class ScoreView extends JPanel {
 
 	public void setComposer(String composer) {
 		composerLabel.setText(composer);
+	}
+	
+	public void setNumPages(String pages) {
+		numPagesLabel.setText(pages);
+	}
+
+	public JComponent getView() {
+		return this;
 	}
 }

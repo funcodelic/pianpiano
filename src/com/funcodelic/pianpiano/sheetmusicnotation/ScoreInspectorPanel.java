@@ -4,11 +4,15 @@ import javax.swing.*;
 import javax.swing.border.*;
 import java.awt.*;
 import java.awt.event.*;
+import java.io.File;
 
 //
 //	This class encapsulates the panel used to inspect and configure the score
 //
 class ScoreInspectorPanel extends JPanel {
+	
+	// The score this inspector panel is inspecting
+	ScoreController score;
 	
 	// Name title label and text field
 	JLabel nameTitleLabel;
@@ -18,9 +22,16 @@ class ScoreInspectorPanel extends JPanel {
 	JLabel composerTitleLabel;
 	JTextField composerField;
 	
+	// Add Page title label and button
+	JLabel addPageTitleLabel;
+	JButton addPageButton;
+	
 	
 	// C'tor
 	public ScoreInspectorPanel(ScoreController score) {
+		// Store the score
+		this.score = score;
+		
 		// Name title field
 		nameTitleLabel = new JLabel( "Name: " );
 		nameTitleLabel.setForeground(Color.WHITE);
@@ -35,12 +46,25 @@ class ScoreInspectorPanel extends JPanel {
 		// Composer text field
 		composerField = new JTextField();
 		
-		// Add the labels and text fields to the panel
-		setLayout(new GridLayout(4, 1));
+		// Add page button
+		int numPages = score.getNumberOfPages();
+		addPageTitleLabel = new JLabel( numPages + " pages" );
+		addPageTitleLabel.setHorizontalAlignment(SwingConstants.CENTER);
+		addPageTitleLabel.setForeground(Color.WHITE);
+        addPageButton = new JButton("Add New Page");
+		
+		// Create a grid layout and give each field some room vertically
+        GridLayout gridLayout = new GridLayout(6, 1);
+        gridLayout.setVgap(10); // Set the vertical gap to 10
+        setLayout(gridLayout);
+        
+        // Add the labels and text fields to the panel
 		add(nameTitleLabel);
 		add(nameField);
 		add(composerTitleLabel);
 		add(composerField);
+		add(addPageTitleLabel);
+		add(addPageButton);
 		
 		// Add an action listener to the name field
         nameField.addActionListener(new ActionListener() {
@@ -61,7 +85,7 @@ class ScoreInspectorPanel extends JPanel {
 
             @Override
             public void focusLost(FocusEvent e) {
-                //updateScoreName(); // Update the score's name when focus is lost
+                // Update the score's name when focus is lost (the user tabs)
             	String scoreName = nameField.getText();
             	score.setScoreName(scoreName);
             }
@@ -75,6 +99,29 @@ class ScoreInspectorPanel extends JPanel {
             }
         });
         
+        // Capture the name in the name field if the user tabs to the composer field
+        composerField.addFocusListener(new FocusListener() {
+            @Override
+            public void focusGained(FocusEvent e) {
+                // No action needed on focus gained
+            }
+
+            @Override
+            public void focusLost(FocusEvent e) {
+            	// Update the score's composer when focus is lost (the user tabs)
+            	String compName = composerField.getText();
+            	score.setScoreComposer(compName);
+            }
+        });
+        
+        // Add action listener to addPageButton
+        addPageButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                openFileChooser();
+            }
+        });
+        
         // Set the background color
         setBackground(Color.GRAY);
 		
@@ -83,5 +130,23 @@ class ScoreInspectorPanel extends JPanel {
         Border paddingBorder = BorderFactory.createEmptyBorder(10, 10, 10, 10);
         setBorder(BorderFactory.createCompoundBorder(etchedBorder, paddingBorder));
 	}
+	
+	public void refresh() {
+		int numPages = score.getNumberOfPages();
+		
+		String unitsString = numPages == 1 ? " page" : " pages";
+		addPageTitleLabel.setText( numPages + unitsString );
+	}
+	
+	private void openFileChooser() {
+        JFileChooser fileChooser = new JFileChooser();
+        fileChooser.setFileSelectionMode(JFileChooser.FILES_ONLY);
+        int returnValue = fileChooser.showOpenDialog(this);
+        if (returnValue == JFileChooser.APPROVE_OPTION) {
+            File selectedFile = fileChooser.getSelectedFile();
+            String filePath = selectedFile.getAbsolutePath();
+            score.addPage(filePath);
+        }
+    }
 
 }
