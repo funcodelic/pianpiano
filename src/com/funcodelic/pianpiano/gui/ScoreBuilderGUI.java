@@ -18,13 +18,16 @@ public class ScoreBuilderGUI extends JFrame {
 	PianPianoGUIMenuBar menuBar = new PianPianoGUIMenuBar(this);
 	
 	// The panels
-	JPanel toolbarPanel = new JPanel(); // north
-	JPanel utilityPanel	= new JPanel(); // east
-	PianPianoEditorPanel editorPanel = new PianPianoEditorPanel(); // center
-	PianPianoNavigatorPanel navigatorPanel = new PianPianoNavigatorPanel(); // west
+	PianPianoToolbarPanel toolbarPanel = new PianPianoToolbarPanel();
+	PianPianoUtilityPanel utilityPanel = new PianPianoUtilityPanel();
+	PianPianoEditorPanel editorPanel = new PianPianoEditorPanel();
+	PianPianoNavigatorPanel navigatorPanel = new PianPianoNavigatorPanel();
 	
 	// The piano score being built
 	ScoreController theScore;
+	
+	// The selected sheet music object
+	Object selectedObject;
 	
 	
 	// C'tor
@@ -32,27 +35,11 @@ public class ScoreBuilderGUI extends JFrame {
 		// Install the menu bar
 		setJMenuBar( menuBar );
 		
-		// Name the panels
-		toolbarPanel.setName( "Toolbar" );
-		editorPanel.setName( "Editor" );
-		navigatorPanel.setName( "Navigator" );
-		utilityPanel.setName( "Utility" );
-		
-		// Set the layout managers
-		navigatorPanel.setLayout( new BorderLayout() );
-		utilityPanel.setLayout( new BorderLayout() );
-		
 		// Set their preferred sizes
 		toolbarPanel.setPreferredSize( new Dimension( 1400, 50 ) );
 		editorPanel.setPreferredSize( new Dimension( 900, 600 ) );
 		navigatorPanel.setPreferredSize( new Dimension( 250, 600 ) );
 		utilityPanel.setPreferredSize( new Dimension( 250, 600 ) );
-		
-		// Set their background colors to delineate them
-		toolbarPanel.setBackground( Color.LIGHT_GRAY );
-		editorPanel.setBackground( Color.DARK_GRAY );
-		navigatorPanel.setBackground( Color.BLACK );
-		utilityPanel.setBackground( Color.GRAY );
 		
 		// Add the panels to the frame
 		add( toolbarPanel, BorderLayout.NORTH );
@@ -62,13 +49,13 @@ public class ScoreBuilderGUI extends JFrame {
 	}
 	
 	public void go() {
-		// Create the page view and add it to the editor panel
-		String path = "/Users/troymulder/java-workspace/Pian Piano/Moonlight.PNG";
-		PageView pageView = new PageView(path);
-		editorPanel.setPageView(pageView);
-		
 		// Configure the frame and display it
 		setTitle( "Pian Piano Sheet Music Builder" );
+		
+		// Prompt the user to create a new score in the toolbar panel
+		JLabel promptLabel = new JLabel("Cmd + B to build a new score");
+		toolbarPanel.setView(promptLabel);
+				
 		setLocation( 0, 0 );
 		pack();
 		setDefaultCloseOperation( JFrame.EXIT_ON_CLOSE );
@@ -79,7 +66,12 @@ public class ScoreBuilderGUI extends JFrame {
 		// Instantiate a new score
 		theScore = new ScoreController();
 		
-		// Get the score's tree and listen for selections
+		//
+		// 	Get the score's tree and listen for selections
+		//
+		//	When a node in the tree is selected, display its view and inspector
+		//	and display the tree's path to the object in the toolbar
+		//
 		ScoreTree scoreTree = theScore.getTree();
 		
 		scoreTree.addTreeSelectionListener( new TreeSelectionListener() {
@@ -87,34 +79,53 @@ public class ScoreBuilderGUI extends JFrame {
 			public void valueChanged(TreeSelectionEvent e) {
 				TreePath path = e.getPath();
 				DefaultMutableTreeNode selectedNode = (DefaultMutableTreeNode)path.getLastPathComponent();
-				Object userObject = selectedNode.getUserObject();
-				System.out.println("\nSelected node: " + userObject.toString());
+				selectedObject = selectedNode.getUserObject();
 				
-				if (userObject instanceof ScoreController) {
-					ScoreController selectedScore = (ScoreController) userObject;
-					// Do something with the selected score
-					System.out.println("Selected score: " + selectedScore.toString());
-              }
+				// Display panel-editable views in the editor panel
+				if (selectedObject instanceof PanelEditable) {
+				    PanelEditable editable = (PanelEditable) selectedObject;
+				    editorPanel.setView( editable.getView() );
+				}
+				
+				// Display the inspector panel in the utility panel
+				if (selectedObject instanceof Inspectable) {
+					Inspectable inspectable = (Inspectable) selectedObject;
+					utilityPanel.setView( inspectable.getInspectorView() );
+				}
+				
+				// Build the full path string
+		        StringBuilder fullPath = new StringBuilder();
+		        Object[] nodes = path.getPath();
+		        for (int i = 0; i < nodes.length; i++) {
+		            DefaultMutableTreeNode node = (DefaultMutableTreeNode) nodes[i];
+		            if (i > 0) {
+		                fullPath.append("  >  ");
+		            }
+		            fullPath.append(node.getUserObject().toString());
+		        }
+		        
+		        // Display the full path in the toolbar
+		        toolbarPanel.setView( new JLabel( fullPath.toString() ) );
 			}
 		});
 		
+		//
+		//	Display the score's panels so the user can build it further
+		//
 		// Pass the score tree to the navigator panel for display
-		navigatorPanel.removeAll();
-		navigatorPanel.setScoreTree(scoreTree);
+		navigatorPanel.setView( scoreTree );
 		
 		// Install the score's view in the editor panel
-		editorPanel.removeAll();
-		editorPanel.add( theScore.getView() );
-		editorPanel.revalidate();
-		editorPanel.repaint();
+		editorPanel.setView( theScore.getView() );
 		
 		// Install the score's inspector panel
-		utilityPanel.removeAll();
-		utilityPanel.add(theScore.getInspectorPanel(), BorderLayout.NORTH);
-		utilityPanel.revalidate();
-		utilityPanel.repaint();
+		utilityPanel.setView( theScore.getInspectorPanel() );
+		
+		// Update the toolbar panel to display the score's path
+		toolbarPanel.setView( new JLabel("Add pages to the score") );
 		
 		// Show the navigation and utility panels
+		showToolbarPanel(true);
 		showNavigationPanel(true);
 		showUtilityPanel(true);
 	}
@@ -132,10 +143,10 @@ public class ScoreBuilderGUI extends JFrame {
 	}
 	
 	public void zoomIn( boolean zoomIn ) { // false = zoom out
-		editorPanel.zoom( zoomIn );
+		if ( selectedObject instanceof Zoomable ) {
+			Zoomable zoomable = (Zoomable) selectedObject;
+			zoomable.zoom(zoomIn);
+		}
 	}
 	
-	public void printViewportInfo() {
-		editorPanel.printViewportInfo();
-	}
 }

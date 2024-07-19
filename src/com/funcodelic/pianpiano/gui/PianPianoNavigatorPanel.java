@@ -2,6 +2,8 @@ package com.funcodelic.pianpiano.gui;
 
 import javax.swing.*;
 import java.awt.BorderLayout;
+import java.awt.Color;
+
 import com.funcodelic.pianpiano.sheetmusicnotation.ScoreTree;
 
 //
@@ -11,19 +13,23 @@ import com.funcodelic.pianpiano.sheetmusicnotation.ScoreTree;
 //	and navigate through the score's sheet music entity hierarchy.
 //
 class PianPianoNavigatorPanel extends JPanel {
+	// The view to display
+	private JComponent currentView;
 	
 	
 	// C'tor
 	public PianPianoNavigatorPanel() {
+		setName( "Navigator" );
+		setLayout( new BorderLayout() );
+		setBackground( Color.BLACK );
 	}
 	
-	// Set the score's tree for display in the navigator panel
-	public void setScoreTree(ScoreTree scoreTree) {
-		// Wrap the tree in a scroll pane, add it to the panel, and refresh
-		JScrollPane scrollPane = new JScrollPane(scoreTree);
-		add(scrollPane, BorderLayout.CENTER);
-		revalidate();
-		repaint();
-	}
+	public void setView( JComponent view ) {
+		removeAll();
+        currentView = new JScrollPane(view);
+		add(currentView, BorderLayout.CENTER);
+        revalidate();
+        repaint();
+    }
 
 }

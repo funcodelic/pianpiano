@@ -52,23 +52,9 @@ class PianPianoGUIMenuBar extends JMenuBar {
         
         
         //
-        // For debugging, create an accelerator to print out the viewport info
+        // Configure the File Menu
         //
-        JMenuItem printMenuItem = new JMenuItem("Print");
-        printMenuItem.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_P, modifier));
-
-        printMenuItem.addActionListener(e -> {
-        	// Print the viewport state
-        	theGui.printViewportInfo();
-        });
-        
         fileMenu.add(newScoreMenuItem);
-        fileMenu.addSeparator();
-        fileMenu.add(new JMenuItem("New"));
-        fileMenu.add(new JMenuItem("Open"));
-        fileMenu.add(new JMenuItem("Save"));
-        fileMenu.add(printMenuItem);
-        fileMenu.addSeparator();
         
         
         //

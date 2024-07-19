@@ -37,9 +37,17 @@ public class ScoreTree extends JTree {
 	}
 	
 	// Update the root node
-	public void updateRootName() {
-        treeModel.nodeChanged(root);
+	public void refresh() {
+        treeModel.reload();
     }
+	
+	// Add a page node
+	public void addPageNode(Object pageObj, int pageIndex) {
+		// Create a new page node and add it to the root
+		MutableTreeNode pageNode = new DefaultMutableTreeNode(pageObj);
+		root.insert(pageNode, pageIndex);
+		treeModel.reload();
+	}
 	
 	// Method to set a new score
 	public void setScore(ScoreController theScore) {
