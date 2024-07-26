@@ -1,21 +1,37 @@
 package com.funcodelic.pianpiano.sheetmusicnotation;
 
+import java.awt.geom.Rectangle2D;
+import java.util.*;
 import javax.swing.*;
-
-//import com.funcodelic.pianpiano.gui.PianPianoEditorPanel.Magnification;
 
 //
 //	PageController is the main handle to the Page MVC classes.
 //	It mediates between the PageModel and PageView.
 //
-class PageController implements PanelEditable, Inspectable, Zoomable {
+class PageController implements PanelEditable, SheetMusicNode, Zoomable {
 	// The model and view components
-    private PageModel pageModel;
-    private PageView pageView;
+    private PageModel model;
+    private PageView view;
+    
+    // The strategy for interfacing with the page, handling mouse events
+    private final PageInterface pageInterface;
     
 	// The panel to inspect and configure the page
 	private PageInspectorPanel pageInspectorPanel;
 	
+	private List<StaffSystemController> staffSystemControllers;
+    private int nextStaffSystemIndex;
+    
+    // TODO: DELETE THIS: for development only
+    private Rectangle2D.Double rect1 = new Rectangle2D.Double(180, 395, 2400, 530);
+    private Rectangle2D.Double rect2 = new Rectangle2D.Double(180, 940, 2400, 530);
+    private List<Rectangle2D.Double> cannedRectangles = new ArrayList<Rectangle2D.Double>();
+    {
+    	cannedRectangles.add(rect1);
+    	cannedRectangles.add(rect2);
+    }
+	
+    // Magnification values for the page
 	public enum Magnification {
         HALF(0.5),
         ONE(1.0),
@@ -34,37 +50,86 @@ class PageController implements PanelEditable, Inspectable, Zoomable {
     
     private Magnification magnification = Magnification.ONE;
 
+    
+    // C'tor
     public PageController(String fileImagePath, int pageNumber) {
-        pageModel = new PageModel(fileImagePath, pageNumber);
-        pageView = new PageView(pageModel.getImage());
+        model = new PageModel(fileImagePath, pageNumber);
+        view = new PageView(model.getImage());
+        
+        pageInterface = new PanPage(view.getSheetMusicPanel());
+        view.setPageInterface(pageInterface);
         
 		pageInspectorPanel = new PageInspectorPanel(this);
-    }
-
-    public JComponent getView() {
-        return pageView.getView();
+		
+		staffSystemControllers = new ArrayList<>();
+        nextStaffSystemIndex = 1;
     }
     
+    public int getPageNumber() {
+        return model.getPageNumber();
+    }
+
+    @Override
+    public JComponent getPanelEditableView() {
+        return view.getScrollPane();
+    }
+    
+    @Override
     public JComponent getInspectorView() {
     	return pageInspectorPanel;
     }
-
-    public void setScale(double scale) {
-        pageView.setScale(scale);
-    }
-    public double getScale() {
-		return pageView.getScale();
-	}
     
-	public JPanel getInspectorPanel() {
-		return pageInspectorPanel;
+    @Override
+    public PageInterface getPageInterface() {
+    	return pageInterface;
+    }
+    
+    // Sets the strategy to interface with the page
+    public void setPageInterface(PageInterface pageInterface) {
+    	// Pass the page interface to the view
+    	view.setPageInterface(pageInterface);
+    }
+    
+    public StaffSystemController addStaffSystem() {
+    	int index = staffSystemControllers.size();
+    	Rectangle2D.Double newRect = createStaffSystemRectangle(index);
+        StaffSystemModel model = new StaffSystemModel(nextStaffSystemIndex, newRect);
+        StaffSystemView view = new StaffSystemView(model.getBounds());
+        view.setScale(this.view.getScale()); // Set the current scale
+
+        StaffSystemController staffSystem = new StaffSystemController(model, view);
+        staffSystemControllers.add(staffSystem);
+        this.view.addStaffSystemView(view);
+
+        nextStaffSystemIndex++;
+        
+        return staffSystem;
+    }
+    
+    public List<StaffSystemController> getStaffSystems() {
+        return staffSystemControllers;
+    }
+
+    @Override
+    public void setScale(double scale) {
+        view.setScale(scale);
+        
+        for (StaffSystemController controller : staffSystemControllers) {
+            controller.getView().setScale(scale);
+        }
+    }
+    
+    @Override
+    public double getScale() {
+		return view.getScale();
 	}
 	
 	@Override
 	public String toString() {
-		return "Page " + pageModel.getPageNumber();
+		return "Page " + model.getPageNumber();
 	}
 	
+	@Override
 	public void zoom( boolean zoomIn ) {
     	Magnification [] magnifications = Magnification.values();
     	
@@ -97,7 +162,7 @@ class PageController implements PanelEditable, Inspectable, Zoomable {
     }
     
     private void setMagnification(Magnification magnification) {
-    	pageView.setScale( magnification.getValue() );
+    	view.setScale( magnification.getValue() );
     }
     
     private static int getMagnificationIndex(Magnification magnification) {
@@ -108,5 +173,23 @@ class PageController implements PanelEditable, Inspectable, Zoomable {
             }
         }
         return -1; // Return -1 if not found
+    }
+
+	@Override
+	public void select() {
+		//System.out.println(toString() + " selected");
+	}
+	
+	@Override
+	public void deselect() {
+		//System.out.println(toString() + " deselected");
+	}
+	
+	// Helper method to create a new rectangle with predefined dimensions
+    public Rectangle2D.Double createStaffSystemRectangle(int index) {
+//        double width = 2400;
+//        double height = 530;
+//        return new Rectangle2D.Double(x, y, width, height);
+    	return cannedRectangles.get(index);
     }
 }

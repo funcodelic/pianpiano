@@ -3,40 +3,52 @@ package com.funcodelic.pianpiano.sheetmusicnotation;
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.*;
-import java.awt.geom.Rectangle2D;
 import java.awt.image.BufferedImage;
+import java.util.ArrayList;
+import java.util.List;
 
 //
-//	This class represents a page of sheet music.
-//
-//	It is a JPanel with a buffered image of a page of sheet music drawn in it.
+//	The view class of the page's MVC classes, which displays and manages
+//	the sheet music image and all the sheet music notation objects in it
 //
 class PageView {
-	
+
     private JScrollPane scrollPane;
     private SheetMusicPanel sheetMusicPanel;
     private BufferedImage sheetMusicImage;
     private double scale = 1.0;
 
-    // TODO: Replace these with actual Staff Systems
-    private Rectangle2D.Double staffSystem1;
-    private Rectangle2D.Double staffSystem2;
+    // The staff system views managed by the page view
+    private List<StaffSystemView> staffSystemViews;
+    
+    // The mouse event handler strategy for interfacing with the page
+    private PageInterface currentPageInterface;
 
+    
+    // C'tor
     public PageView(BufferedImage image) {
-    	this.sheetMusicImage = image;
+        this.sheetMusicImage = image;
         this.sheetMusicPanel = new SheetMusicPanel();
 
         // Create the JScrollPane and add the inner panel
         this.scrollPane = new JScrollPane(sheetMusicPanel);
         this.scrollPane.getViewport().setBackground(Color.DARK_GRAY);
-    	
 
-        // Initialize the new rectangles
-        staffSystem1 = new Rectangle2D.Double(180, 395, 2400, 530);
-        staffSystem2 = new Rectangle2D.Double(180, 940, 2400, 530);
+        staffSystemViews = new ArrayList<>();
+        
+        setPageInterface(new PanPage(sheetMusicPanel)); // Default strategy
     }
-    
-    public JComponent getView() {
+
+    public void addStaffSystemView(StaffSystemView view) {
+        staffSystemViews.add(view);
+        sheetMusicPanel.repaint();
+    }
+
+    public List<StaffSystemView> getStaffSystemViews() {
+        return staffSystemViews;
+    }
+
+    public JComponent getScrollPane() {
         return scrollPane;
     }
 
@@ -45,38 +57,45 @@ class PageView {
     }
 
     public void setScale(double scale) {
-        System.out.println(scale + "x");
         this.scale = scale;
+        
+        // Propagate scale to all StaffSystemViews
+        for (StaffSystemView staffSystemView : staffSystemViews) {
+            staffSystemView.setScale(scale);
+        }
+        
         sheetMusicPanel.revalidate();
         sheetMusicPanel.repaint();
     }
     
+    public void setPageInterface(PageInterface pageInterface) {
+        this.currentPageInterface = pageInterface;
+    }
+
     //
-    //	Inner class to hold the sheet music panel
+    // Inner class to hold the sheet music panel
     //
     private class SheetMusicPanel extends JPanel {
-        private Point dragStartPoint;
 
         public SheetMusicPanel() {
-        	setLayout( new BorderLayout() );
-
+            setLayout(new BorderLayout());
+            
             addMouseListener(new MouseAdapter() {
                 @Override
                 public void mousePressed(MouseEvent e) {
-                    dragStartPoint = e.getPoint();
+                    if (currentPageInterface != null) {
+                        currentPageInterface.mousePressed(e);
+                        repaint();
+                    }
                 }
             });
 
             addMouseMotionListener(new MouseMotionAdapter() {
                 @Override
                 public void mouseDragged(MouseEvent e) {
-                    JViewport viewport = (JViewport) getParent();
-                    if (viewport != null && dragStartPoint != null) {
-                        Point viewPosition = viewport.getViewPosition();
-                        int deltaX = dragStartPoint.x - e.getX();
-                        int deltaY = dragStartPoint.y - e.getY();
-                        viewPosition.translate(deltaX, deltaY);
-                        scrollRectToVisible(new Rectangle(viewPosition, viewport.getSize()));
+                    if (currentPageInterface != null) {
+                        currentPageInterface.mouseDragged(e);
+                        repaint();
                     }
                 }
             });
@@ -92,8 +111,10 @@ class PageView {
 
                 // Draw the Staff Systems
                 g2d.setColor(Color.BLUE);
-                g2d.draw(staffSystem1);
-                g2d.draw(staffSystem2);
+
+                for (StaffSystemView system : staffSystemViews) {
+                    system.draw(g2d);
+                }
             }
         }
 
@@ -103,5 +124,13 @@ class PageView {
                     new Dimension((int) (sheetMusicImage.getWidth() * scale),
                             (int) (sheetMusicImage.getHeight() * scale));
         }
+    }
+    
+    public PageInterface getCurrentPageInterface() {
+    	return currentPageInterface;
+    }
+    
+    public SheetMusicPanel getSheetMusicPanel() {
+    	return sheetMusicPanel;
     }
 }

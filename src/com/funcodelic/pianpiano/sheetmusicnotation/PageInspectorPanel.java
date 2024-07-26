@@ -3,6 +3,7 @@ package com.funcodelic.pianpiano.sheetmusicnotation;
 import javax.swing.*;
 import javax.swing.border.*;
 import java.awt.Color;
+import java.awt.Component;
 import java.awt.event.*;
 
 //
@@ -10,24 +11,32 @@ import java.awt.event.*;
 //
 class PageInspectorPanel extends JPanel {
 	
-	JButton addStaffSystemButton = new JButton("Add New Staff System");
+	JButton addStaffSystemButton;
 	
 	
 	// C'tor
 	public PageInspectorPanel(PageController page) {
-		// Add an action listener to the addStaffSystemButton
+		// Instantiate the button to add new staff systems to the page
+		addStaffSystemButton = new JButton("Add New Staff System");
+		
+		// Add an action listener to the add button
         addStaffSystemButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-            	System.out.println("Adding a new staff system to the page...");
-                //page.addStaffSystem();
+            	Component parent = getParent();
+                if ( parent instanceof NodeAdder ) {
+                	NodeAdder nodeAdder = (NodeAdder) parent;
+                	nodeAdder.addNodeAtIndex(page.addStaffSystem(), page.getStaffSystems().size() - 1);
+                }
+                
             }
         });
 		
 		// Add the button to the panel
         add(addStaffSystemButton);
 		
-		// Set the background color
+		// Set the name and background color
+        setName( "Page Inspector" );
         setBackground(Color.GRAY);
 		
         // Add a border with padding around the inspector panel

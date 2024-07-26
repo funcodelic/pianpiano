@@ -4,8 +4,6 @@ import javax.swing.*;
 import java.awt.BorderLayout;
 import java.awt.Color;
 
-import com.funcodelic.pianpiano.sheetmusicnotation.ScoreTree;
-
 //
 //	This class represents the Navigator panel of the Editor GUI.
 //

@@ -2,7 +2,6 @@ package com.funcodelic.pianpiano.gui;
 
 import javax.swing.*;
 import java.awt.*;
-import com.funcodelic.pianpiano.sheetmusicnotation.*;
 
 //
 //	This class encapsulates the editor panel of the GUI.
