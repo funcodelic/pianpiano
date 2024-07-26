@@ -4,6 +4,9 @@ import java.awt.*;
 import javax.swing.*;
 import javax.swing.border.*;
 
+//
+//	Represents the toolbar to display prompts and score tree paths
+//
 class PianPianoToolbarPanel extends JPanel {
 	// The view to display
 	private JComponent currentView;

@@ -19,7 +19,9 @@ public class ScoreTree extends JTree {
 		// Initialize the root node with the score
         root = new DefaultMutableTreeNode(score);
         treeModel = new DefaultTreeModel(root);
-        setModel(treeModel);
+        
+        // Call the superclass constructor with the tree model
+        super.setModel(treeModel);
         
         // Customize the tree cell renderer to change text color
  		DefaultTreeCellRenderer renderer = new DefaultTreeCellRenderer();
@@ -49,10 +51,55 @@ public class ScoreTree extends JTree {
 		treeModel.reload();
 	}
 	
+	// Add a node to a parent node
+	public void addObjectToParentNode(Object childObject, DefaultMutableTreeNode parentNode, int index) {
+		// Create a new node with the child object and insert it into the parent node of the tree
+		DefaultMutableTreeNode childNode = new DefaultMutableTreeNode(childObject);
+		getModel().insertNodeInto(childNode, parentNode, index);
+		refresh();
+		
+		// Expand the selected node to show the newly added child
+        TreePath parentPath = new TreePath(parentNode.getPath());
+        expandPath(parentPath);
+        
+        // Create a path to the new node
+        TreePath childNodePath = parentPath.pathByAddingChild(childNode);
+        
+        // Select the new node
+        setSelectionPath(childNodePath);
+        
+        // Make sure the new node is visible
+        scrollPathToVisible(childNodePath);
+        
+        // Expand the tree
+        expandAllNodes();
+	}
+	
 	// Method to set a new score
 	public void setScore(ScoreController theScore) {
 		root.setUserObject(theScore);
 		root.removeAllChildren();
 		treeModel.reload();
 	}
+	
+	// Access the model
+	public DefaultTreeModel getModel() {
+		return treeModel;
+	}
+	
+	// Method to expand all nodes starting from the root
+    public void expandAllNodes() {
+        expandAllNodes(root);
+    }
+
+    private void expandAllNodes(DefaultMutableTreeNode node) {
+        // Expand the current node
+        this.expandPath(new TreePath(node.getPath()));
+
+        // Traverse children
+        for (int i = 0; i < node.getChildCount(); i++) {
+            DefaultMutableTreeNode childNode = (DefaultMutableTreeNode) node.getChildAt(i);
+            expandAllNodes(childNode);
+        }
+    }
 }

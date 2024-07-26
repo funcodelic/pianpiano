@@ -8,6 +8,6 @@ import javax.swing.JComponent;
 //
 public interface PanelEditable {
 	
-    JComponent getView();
+    JComponent getPanelEditableView();
     
 }

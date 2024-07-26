@@ -122,7 +122,8 @@ class ScoreInspectorPanel extends JPanel {
             }
         });
         
-        // Set the background color
+        // Set the name and background color
+        setName( "Score Inspector" );
         setBackground(Color.GRAY);
 		
         // Add a border with padding around the inspector panel

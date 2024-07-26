@@ -6,34 +6,46 @@ import javax.swing.event.*;
 import javax.swing.tree.*;
 import java.awt.*;
 
-
 //
 //	This class provides the frame for the sheet music editor GUI.
-//
 //	It is the public interface class to the GUI package.
 //
-public class ScoreBuilderGUI extends JFrame {
-	
+// TODO: FIX THIS: Remove the NoteAdder business
+public class ScoreBuilderGUI extends JFrame implements NodeAdder {
 	// The menu bar
 	PianPianoGUIMenuBar menuBar = new PianPianoGUIMenuBar(this);
 	
 	// The panels
-	PianPianoToolbarPanel toolbarPanel = new PianPianoToolbarPanel();
-	PianPianoUtilityPanel utilityPanel = new PianPianoUtilityPanel();
-	PianPianoEditorPanel editorPanel = new PianPianoEditorPanel();
-	PianPianoNavigatorPanel navigatorPanel = new PianPianoNavigatorPanel();
+	PianPianoToolbarPanel toolbarPanel;
+	PianPianoUtilityPanel utilityPanel;
+	PianPianoEditorPanel editorPanel;
+	PianPianoNavigatorPanel navigatorPanel;
 	
 	// The piano score being built
 	ScoreController theScore;
 	
-	// The selected sheet music object
+	// The selected sheet music object and the selected node
 	Object selectedObject;
+	DefaultMutableTreeNode selectedNode;
+	
+	// The currently and previously selected sheet music node
+	SheetMusicNode selectedSheetMusicNode;
+	SheetMusicNode lastSelectedSheetMusicNode;
+    
+    // Track the page number
+    int currentPageNumber;
 	
 	
 	// C'tor
 	public ScoreBuilderGUI() {
 		// Install the menu bar
 		setJMenuBar( menuBar );
+		
+		// Instantiate the panels
+		toolbarPanel = new PianPianoToolbarPanel();
+		utilityPanel = new PianPianoUtilityPanel(this); //TODO: Fix this coupling
+		editorPanel = new PianPianoEditorPanel();
+		navigatorPanel = new PianPianoNavigatorPanel();
 		
 		// Set their preferred sizes
 		toolbarPanel.setPreferredSize( new Dimension( 1400, 50 ) );
@@ -52,7 +64,7 @@ public class ScoreBuilderGUI extends JFrame {
 		// Configure the frame and display it
 		setTitle( "Pian Piano Sheet Music Builder" );
 		
-		// Prompt the user to create a new score in the toolbar panel
+		// Prompt the user to create a new score in the tool bar panel
 		JLabel promptLabel = new JLabel("Cmd + B to build a new score");
 		toolbarPanel.setView(promptLabel);
 				
@@ -67,67 +79,81 @@ public class ScoreBuilderGUI extends JFrame {
 		theScore = new ScoreController();
 		
 		//
-		// 	Get the score's tree and listen for selections
-		//
-		//	When a node in the tree is selected, display its view and inspector
-		//	and display the tree's path to the object in the toolbar
-		//
-		ScoreTree scoreTree = theScore.getTree();
-		
-		scoreTree.addTreeSelectionListener( new TreeSelectionListener() {
-			@Override
-			public void valueChanged(TreeSelectionEvent e) {
-				TreePath path = e.getPath();
-				DefaultMutableTreeNode selectedNode = (DefaultMutableTreeNode)path.getLastPathComponent();
-				selectedObject = selectedNode.getUserObject();
-				
-				// Display panel-editable views in the editor panel
-				if (selectedObject instanceof PanelEditable) {
-				    PanelEditable editable = (PanelEditable) selectedObject;
-				    editorPanel.setView( editable.getView() );
-				}
-				
-				// Display the inspector panel in the utility panel
-				if (selectedObject instanceof Inspectable) {
-					Inspectable inspectable = (Inspectable) selectedObject;
-					utilityPanel.setView( inspectable.getInspectorView() );
-				}
-				
-				// Build the full path string
-		        StringBuilder fullPath = new StringBuilder();
-		        Object[] nodes = path.getPath();
-		        for (int i = 0; i < nodes.length; i++) {
-		            DefaultMutableTreeNode node = (DefaultMutableTreeNode) nodes[i];
-		            if (i > 0) {
-		                fullPath.append("  >  ");
-		            }
-		            fullPath.append(node.getUserObject().toString());
-		        }
-		        
-		        // Display the full path in the toolbar
-		        toolbarPanel.setView( new JLabel( fullPath.toString() ) );
-			}
-		});
-		
-		//
-		//	Display the score's panels so the user can build it further
+		//	Display the new score's panels to build it
 		//
 		// Pass the score tree to the navigator panel for display
+		ScoreTree scoreTree = theScore.getTree();
 		navigatorPanel.setView( scoreTree );
+		editorPanel.setView( theScore.getPanelEditableView() );
+		utilityPanel.setView( theScore.getInspectorView() );
+		toolbarPanel.setView( new JLabel("Name the score and add sheet music 🎼") );
 		
-		// Install the score's view in the editor panel
-		editorPanel.setView( theScore.getView() );
-		
-		// Install the score's inspector panel
-		utilityPanel.setView( theScore.getInspectorPanel() );
-		
-		// Update the toolbar panel to display the score's path
-		toolbarPanel.setView( new JLabel("Add pages to the score") );
+		// Set the selected sheet music node to the score
+		selectedSheetMusicNode = (SheetMusicNode) theScore;
 		
 		// Show the navigation and utility panels
 		showToolbarPanel(true);
 		showNavigationPanel(true);
 		showUtilityPanel(true);
+
+		// Reset the current page number
+		currentPageNumber = theScore.SCORE_PAGE_NUMBER;
+		
+		// Sore the score's node as the last selected node
+		lastSelectedSheetMusicNode = selectedSheetMusicNode;
+		
+		//
+		// 	Listen for selections of the score's many sheet music notation entities
+		//	and update the GUI views to let the user inspect and configure them
+		//
+		scoreTree.addTreeSelectionListener( new TreeSelectionListener() {
+			@Override
+			public void valueChanged(TreeSelectionEvent e) {
+				// Get the selected object and sheet music node and select it
+				TreePath path = e.getPath();
+				selectedNode = (DefaultMutableTreeNode)path.getLastPathComponent();
+				selectedObject = selectedNode.getUserObject();
+				selectedSheetMusicNode = (SheetMusicNode)selectedObject;
+				
+				if ( selectedSheetMusicNode != lastSelectedSheetMusicNode ) {
+					newObjectSelected( path );
+				}
+				
+				// Expand all nodes of the tree
+				theScore.expandTree();
+				
+				// Refresh the editor panel
+				editorPanel.revalidate();
+				editorPanel.repaint();
+			}
+		});//end addTreeSelectionListener()
+	}//end createNewScore()
+	
+	private void newObjectSelected(TreePath path) {
+		// Deselect the previous node and select the new one
+		lastSelectedSheetMusicNode.deselect();
+		selectedSheetMusicNode.select();
+		
+		//
+		//	Turn to the page of the newly selected object
+		//
+		int lastPageNumber = currentPageNumber;
+		currentPageNumber = theScore.getPageNumberForPath(path);
+		if ( currentPageNumber != lastPageNumber ) {
+			turnThePage(currentPageNumber);
+		}
+		
+		// Set the page interface event handling strategy for the selected object
+		theScore.setPageInterfaceForPage(selectedSheetMusicNode.getPageInterface(), currentPageNumber);
+		
+		// Update the inspector panel
+		utilityPanel.setView( selectedSheetMusicNode.getInspectorView() );
+		
+		// Update the tool bar
+		updateToolbar(path);
+		
+		// Set the last selected sheet music node to the new currently selected node
+		lastSelectedSheetMusicNode = selectedSheetMusicNode;
 	}
 	
 	public void showToolbarPanel( boolean showPanel ) {
@@ -147,6 +173,29 @@ public class ScoreBuilderGUI extends JFrame {
 			Zoomable zoomable = (Zoomable) selectedObject;
 			zoomable.zoom(zoomIn);
 		}
+	}
+	
+	private void turnThePage(int currentPage) {
+		editorPanel.setView( theScore.getEditorPanelForPage(currentPage));
+	}
+
+	@Override
+	public void addNodeAtIndex(Object nodeObject, int index) {
+		theScore.getTree().addObjectToParentNode(nodeObject, selectedNode, index);
+	}
+	
+	private void updateToolbar(TreePath path) {
+		// Build the full path string and display it in the tool bar
+        StringBuilder fullPath = new StringBuilder();
+        Object[] nodes = path.getPath();
+        for (int i = 0; i < nodes.length; i++) {
+            DefaultMutableTreeNode node = (DefaultMutableTreeNode) nodes[i];
+            if (i > 0) {
+                fullPath.append("  >  ");
+            }
+            fullPath.append(node.getUserObject().toString());
+        }
+        toolbarPanel.setView( new JLabel( fullPath.toString() ) );
 	}
 	
 }

@@ -11,7 +11,7 @@ import javax.imageio.ImageIO;
 public class PageModel {
     private BufferedImage sheetMusicImage;
     
-    // Maintain the index of the page within the score
+    // Maintain the number of the page within the score
     int pageNumber = -1;
 
     public PageModel(String imagePath, int pageNumber) {
