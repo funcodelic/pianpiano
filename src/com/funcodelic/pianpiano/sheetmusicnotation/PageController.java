@@ -177,12 +177,10 @@ class PageController implements PanelEditable, SheetMusicNode, Zoomable {
 
 	@Override
 	public void select() {
-		//System.out.println(toString() + " selected");
 	}
 	
 	@Override
 	public void deselect() {
-		//System.out.println(toString() + " deselected");
 	}
 	
 	// Helper method to create a new rectangle with predefined dimensions

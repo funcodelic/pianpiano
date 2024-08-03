@@ -16,6 +16,18 @@ public class PianPiano {
             }
         });
         
+        
+//        JFrame frame = new JFrame("Vertically Resizable Rectangle");
+//        Rectangle2D.Double rect = new Rectangle2D.Double(50, 50, 200, 100);
+//        
+//        VerticallyResizableRectangleComponent component = new VerticallyResizableRectangleComponent(rect);
+//        
+//        frame.add(component);
+//        frame.setSize(400, 300);
+//        frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+//        frame.setVisible(true);
+        
+        
 	}//end main()
 
-}
+}//end class

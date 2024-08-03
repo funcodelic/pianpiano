@@ -87,8 +87,6 @@ public class ScoreController implements PanelEditable, SheetMusicNode {
             throw new IndexOutOfBoundsException("Removing invalid page index");
         }
         
-        // TODO: Remove the page node from the score tree
-        
         // Update the number of pages in the view
         String numPages = Integer.toString(pages.size());
         scoreView.setNumPages(numPages);
@@ -130,12 +128,10 @@ public class ScoreController implements PanelEditable, SheetMusicNode {
 	
 	@Override
 	public void select() {
-		//System.out.println(toString() + " selected");
 	}
 	
 	@Override
 	public void deselect() {
-		//System.out.println(toString() + " deselected");
 	}
 	
 	@Override
@@ -163,7 +159,7 @@ public class ScoreController implements PanelEditable, SheetMusicNode {
 	
 	// Set the page interface for the specified page
 	public void setPageInterfaceForPage(PageInterface pageInterface, int pageNumber) {
-		int pageIndex = pageNumber -1;
+		int pageIndex = pageNumber - 1;
 		
 		if ( pageIndex >= 0 && pages.size() > 0 ) {
 			pages.get(pageIndex).setPageInterface(pageInterface);

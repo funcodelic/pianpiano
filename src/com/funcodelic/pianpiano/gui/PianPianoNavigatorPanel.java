@@ -17,7 +17,7 @@ class PianPianoNavigatorPanel extends JPanel {
 	
 	// C'tor
 	public PianPianoNavigatorPanel() {
-		setName( "Navigator" );
+		setName( "Navigator Panel" );
 		setLayout( new BorderLayout() );
 		setBackground( Color.BLACK );
 	}

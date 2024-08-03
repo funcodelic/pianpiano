@@ -3,6 +3,7 @@ package com.funcodelic.pianpiano.gui;
 import java.awt.*;
 import javax.swing.*;
 import com.funcodelic.pianpiano.sheetmusicnotation.NodeAdder;
+import com.funcodelic.pianpiano.sheetmusicnotation.PageInterface;
 
 //
 //	Utility panel used to inspect and configure sheet music entities
@@ -19,8 +20,8 @@ class PianPianoUtilityPanel extends JPanel implements NodeAdder {
 	// C'tor
 	public PianPianoUtilityPanel(NodeAdder nodeAdder) {
 		this.nodeAdder = nodeAdder;
-		
-		setName( "Utility" );
+				
+		setName( "Utility Panel" );
 		setLayout( new BorderLayout() );
 		setBackground( Color.GRAY );
 	}
@@ -38,5 +39,16 @@ class PianPianoUtilityPanel extends JPanel implements NodeAdder {
 		if (nodeAdder != null) {
 			nodeAdder.addNodeAtIndex(nodeObject, index);
 		}
+	}
+	
+	public void setPageInterface(PageInterface pageInterface) {
+		if (nodeAdder != null) {
+			nodeAdder.setPageInterface(pageInterface);
+		}
+	}
+	
+	@Override
+	public String toString() {
+		return "Utility Panel";
 	}
 }

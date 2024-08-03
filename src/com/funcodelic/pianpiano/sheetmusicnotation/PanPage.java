@@ -33,7 +33,12 @@ public class PanPage implements PageInterface {
     }
     
     @Override
+	public void mouseReleased(MouseEvent e) {
+	}
+    
+    @Override
     public String toString() {
-    	return "PanPage";
+    	return "Pan Page";
     }
+
 }

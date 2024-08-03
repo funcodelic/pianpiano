@@ -16,6 +16,8 @@ class PianPianoGUIMenuBar extends JMenuBar {
     	// Store the GUI
     	this.theGui = gui;
     	
+    	setName( "GUI Menu Bar" );
+    	
         // Create the menus
         JMenu fileMenu = new JMenu("File");
         JMenu editMenu = new JMenu("Edit");
