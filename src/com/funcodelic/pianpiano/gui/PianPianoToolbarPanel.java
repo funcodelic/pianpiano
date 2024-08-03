@@ -14,7 +14,7 @@ class PianPianoToolbarPanel extends JPanel {
 	
 	// C'tor
 	public PianPianoToolbarPanel() {
-		setName( "Toolbar" );
+		setName( "Toolbar Panel" );
 		setLayout( new BorderLayout() );
 		setBackground( Color.LIGHT_GRAY );
 		

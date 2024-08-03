@@ -15,7 +15,7 @@ class PianPianoEditorPanel extends JPanel {
     
 
     public PianPianoEditorPanel() {
-    	setName( "Editor" );
+    	setName( "Editor Panel" );
     	setLayout( new BorderLayout() );
     	setBackground( Color.DARK_GRAY );
     }

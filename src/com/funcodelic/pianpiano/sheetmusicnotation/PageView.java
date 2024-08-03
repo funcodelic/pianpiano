@@ -88,6 +88,14 @@ class PageView {
                         repaint();
                     }
                 }
+                
+                @Override
+                public void mouseReleased(MouseEvent e) {
+                    if (currentPageInterface != null) {
+                        currentPageInterface.mouseReleased(e);
+                        repaint();
+                    }
+                }
             });
 
             addMouseMotionListener(new MouseMotionAdapter() {

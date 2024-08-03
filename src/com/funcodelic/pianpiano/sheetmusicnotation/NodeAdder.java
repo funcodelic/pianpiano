@@ -8,4 +8,5 @@ package com.funcodelic.pianpiano.sheetmusicnotation;
 //
 public interface NodeAdder {
     void addNodeAtIndex(Object nodeObject, int index);
+    void setPageInterface(PageInterface pageInterface);
 }

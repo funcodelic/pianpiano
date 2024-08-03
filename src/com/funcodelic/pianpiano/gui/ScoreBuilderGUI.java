@@ -198,4 +198,17 @@ public class ScoreBuilderGUI extends JFrame implements NodeAdder {
         toolbarPanel.setView( new JLabel( fullPath.toString() ) );
 	}
 	
+	@Override
+	public void setPageInterface(PageInterface pageInterface ) {
+		theScore.setPageInterfaceForPage(pageInterface, currentPageNumber);
+		
+		editorPanel.revalidate();
+		editorPanel.repaint();
+	}
+	
+	@Override
+	public String toString() {
+		return "Score Builder GUI Frame";
+	}
+	
 }

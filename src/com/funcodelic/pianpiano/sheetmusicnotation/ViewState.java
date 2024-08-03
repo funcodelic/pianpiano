@@ -5,7 +5,8 @@ package com.funcodelic.pianpiano.sheetmusicnotation;
 //
 public enum ViewState {
 
-	EDITING,
-    VIEWING
+    HIDDEN,
+    VIEWING,
+    EDITING,
 	
 }
