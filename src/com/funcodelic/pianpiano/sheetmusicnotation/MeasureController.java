@@ -3,43 +3,47 @@ package com.funcodelic.pianpiano.sheetmusicnotation;
 import javax.swing.JComponent;
 
 //
-//	Stave Controller is the main handle of the Stave
-//	and the controller class of the MVC paradigm
+//	The Measure Controller class of the MVC paradigm
 //
-class StaveController implements SheetMusicNode {
+class MeasureController implements SheetMusicNode {
 	
 	// The model and view
-	private StaveModel model;
-	private StaveView view;
+	MeasureModel model;
+	MeasureView  view;
 	
-	// The inspector panel
-	private StaveInspectorPanel inspectorPanel;
+	// Inspector panel
+	MeasureInspectorPanel inspectorPanel;
 	
 	// The page interface adapter
 	PageInterface pageInterface;
 	
 	
 	// C'tor
-	public StaveController(StaveModel model, StaveView view) {
+	MeasureController( MeasureModel model, MeasureView view ) {
+		// Instantiate the model and view
 		this.model = model;
 		this.view = view;
 		
 		// Instantiate the interface strategy
-		pageInterface = new AdjustStave(view);
+		pageInterface = new SlideMeasure(view);
 		
 		// Instantiate the inspector panel
-		inspectorPanel = new StaveInspectorPanel(this);
+		inspectorPanel = new MeasureInspectorPanel( this );
 	}
 	
-	public StaveView getView() {
-        return view;
-    }
-
-    public StaveModel getModel() {
-        return model;
-    }
-    
-    public void setViewState( ViewState viewState ) {
+	MeasureModel getModel() {
+		return model;
+	}
+	
+	MeasureView getView() {
+		return view;
+	}
+	
+	int getIndex() {
+		return model.getIndex();
+	}
+	
+	public void setViewState( ViewState viewState ) {
 		view.setState( viewState );
 	}
 	
@@ -47,16 +51,11 @@ class StaveController implements SheetMusicNode {
 		return view.getState();
 	}
 	
-	@Override
-	public String toString() {
-		return "Stave Controller";
-	}
-
 	//@Override
 	public JComponent getInspectorView() {
 		return inspectorPanel;
 	}
-
+	
 	@Override
 	public void select() {
 	}
@@ -69,5 +68,10 @@ class StaveController implements SheetMusicNode {
 	public PageInterface getPageInterface() {
     	return pageInterface;
     }
+	
+	@Override
+	public String toString() {
+		return model.toString();
+	}
 
 }

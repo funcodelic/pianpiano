@@ -28,7 +28,6 @@ class PageInspectorPanel extends JPanel {
                 	NodeAdder nodeAdder = (NodeAdder) parent;
                 	nodeAdder.addNodeAtIndex(page.addStaffSystem(), page.getStaffSystems().size() - 1);
                 }
-                
             }
         });
 		
