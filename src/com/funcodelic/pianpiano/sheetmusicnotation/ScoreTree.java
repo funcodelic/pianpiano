@@ -66,10 +66,10 @@ public class ScoreTree extends JTree {
         TreePath childNodePath = parentPath.pathByAddingChild(childNode);
         
         // Select the new node
-        setSelectionPath(childNodePath);
+        //setSelectionPath(childNodePath);
         
         // Make sure the new node is visible
-        scrollPathToVisible(childNodePath);
+        //scrollPathToVisible(childNodePath);
         
         // Expand the tree
         expandAllNodes();

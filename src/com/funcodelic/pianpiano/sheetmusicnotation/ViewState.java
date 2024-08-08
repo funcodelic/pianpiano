@@ -6,6 +6,7 @@ package com.funcodelic.pianpiano.sheetmusicnotation;
 public enum ViewState {
 
     HIDDEN,
+    GRAYED,
     VIEWING,
     EDITING,
 	

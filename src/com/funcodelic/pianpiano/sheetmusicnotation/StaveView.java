@@ -2,14 +2,13 @@ package com.funcodelic.pianpiano.sheetmusicnotation;
 
 import static com.funcodelic.pianpiano.sheetmusicnotation.ViewState.*;
 
-import java.awt.BasicStroke;
 import java.awt.*;
 import java.awt.geom.*;
 import java.util.ArrayList;
 import java.util.List;
 
 //
-//	The stave view class of the MVC paradigm
+//	The Stave View class of the MVC paradigm
 //
 class StaveView extends VerticallyResizableRectangle {
 	
@@ -72,7 +71,7 @@ class StaveView extends VerticallyResizableRectangle {
 		if ( state != HIDDEN ) {
 			// Draw the lines gray for now
 	        Color originalColor = g2d.getColor();
-	        g2d.setColor( Color.GREEN );
+	        g2d.setColor( Color.GRAY );
 	        
 	        // Draw each staff line
 	        for ( Line2D.Double line : staffLines ) {
@@ -91,8 +90,7 @@ class StaveView extends VerticallyResizableRectangle {
 	    	
 	        // Draw depending on the editing state
 	        if ( state == EDITING ) {
-	        	//g2d.setColor(Color.GREEN);
-	            super.draw( g2d ); // Draw vertically resizable rectangle with handles
+	        	super.draw( g2d ); // Draw vertically resizable rectangle with handles
 	        }
 	        
 	        // Restore the original stroke

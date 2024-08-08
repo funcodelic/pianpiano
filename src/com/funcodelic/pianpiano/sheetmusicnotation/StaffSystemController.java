@@ -1,6 +1,11 @@
 package com.funcodelic.pianpiano.sheetmusicnotation;
 
 import static com.funcodelic.pianpiano.sheetmusicnotation.ViewState.*;
+
+import java.awt.geom.Rectangle2D;
+import java.util.ArrayList;
+import java.util.List;
+
 import javax.swing.JComponent;
 
 //
@@ -23,11 +28,15 @@ class StaffSystemController implements SheetMusicNode {
 	private StaveController upperStave;
 	private StaveController lowerStave;
 	
+	// The measures of the staff system
+	private List<MeasureController> measures;
+	
 	public enum InterfaceSelection {
 		NO_SELECTION,
 		STAFF_SYSTEM,
 		UPPER_STAFF,
-		LOWER_STAFF
+		LOWER_STAFF,
+		MEASURES
 	}
 	
 	public InterfaceSelection interfaceSelection;
@@ -58,6 +67,8 @@ class StaffSystemController implements SheetMusicNode {
         StaveView lowerStaveView = new StaveView( lowerStaveModel.getBounds() );
         lowerStave = new StaveController( lowerStaveModel, lowerStaveView );
         
+        // Measures
+        this.measures = new ArrayList<MeasureController>();
         
         // Set this view's staff lines view
         view.setStaveViews( upperStave.getView(), lowerStave.getView() );
@@ -80,22 +91,54 @@ class StaffSystemController implements SheetMusicNode {
 			setViewState( EDITING );
 			upperStave.setViewState( HIDDEN );
 			lowerStave.setViewState( HIDDEN );
+			setMeasuresViewState( HIDDEN );
 			theInterface = getPageInterface();
 		}
 		else if ( selectedItem == InterfaceSelection.UPPER_STAFF ) {
 			setViewState( HIDDEN );
 			upperStave.setViewState( EDITING );
 			lowerStave.setViewState( VIEWING );
+			setMeasuresViewState( HIDDEN );
 			theInterface = upperStave.getPageInterface();
 		}
 		else if ( selectedItem == InterfaceSelection.LOWER_STAFF ) {
 			setViewState( HIDDEN );
 			upperStave.setViewState( VIEWING );
 			lowerStave.setViewState( EDITING );
+			setMeasuresViewState( HIDDEN );
 			theInterface = lowerStave.getPageInterface();
+		}
+		else if ( selectedItem == InterfaceSelection.MEASURES ) {
+			setViewState( GRAYED );
+			upperStave.setViewState( HIDDEN );
+			lowerStave.setViewState( HIDDEN );
 		}
 		
 		return theInterface;
+	}
+	
+	private void setMeasuresViewState( ViewState measuresState ) {
+		for ( MeasureController measure : measures ) {
+			measure.setViewState( measuresState );
+		}
+	}
+	
+	PageInterface selectMeasure( int index ) {
+		PageInterface pgInterface = null;
+		
+		// Gray out all the measures except the one selected
+		for ( MeasureController measure : measures ) {
+			if ( measure.getIndex() != index ) {
+				measure.setViewState( GRAYED );
+			}
+			else {
+				measure.setViewState( EDITING );
+				pgInterface = measure.getPageInterface();
+			}
+		}
+		
+		// Return the page interface of the selected measure
+		return pgInterface;
 	}
 	
 	public StaffSystemView getView() {
@@ -137,6 +180,7 @@ class StaffSystemController implements SheetMusicNode {
 		setViewState( VIEWING );
 		upperStave.setViewState( VIEWING );
 		lowerStave.setViewState( VIEWING );
+		setMeasuresViewState( GRAYED );
 		inspectorPanel.clearSelections();
 	}
 	
@@ -144,5 +188,63 @@ class StaffSystemController implements SheetMusicNode {
 	public PageInterface getPageInterface() {
     	return this.pageInterface;
     }
+	
+	// Convenience method to add a new measure to the staff system
+	MeasureController addMeasure() {
+		int index = measures.size();
+		
+		Rectangle2D.Double newMeasureRect = createMeasureRectangle();
+		MeasureModel newMeasureModel = new MeasureModel( newMeasureRect , index );
+		MeasureView  newMeasureView  = new MeasureView( newMeasureModel.getRectangle() );
+		
+		MeasureController newMeasure = new MeasureController( newMeasureModel, newMeasureView );
+		
+		// Set the current scale
+		newMeasureView.setScale( getView().getScale() );
+		
+		// Add the new measure to the list
+		measures.add( newMeasure );
+		
+		// Add the new measure's view to the staff system view
+		this.view.addMeasureView( newMeasureView );
+		
+		return newMeasure;
+	}
+	
+	private Rectangle2D.Double createMeasureRectangle() {
+		// If the index is 0, use the staff system rectangle as the starting reference
+		// Otherwise, use the previous measure as the starting reference
+		// Get the staff system rectangle
+		Rectangle2D.Double staffSystemRect = view.getRectangle();
+		
+		double measureX;
+		double measureY = staffSystemRect.y; // all measures have the same y origin value
+		double measureWidth = 80.0; // start with a width of 20
+		double measureHeight = staffSystemRect.height; // all measures have the same height
+		
+		// If there is one or more measure already in the staff system,
+		// Update the rectangle's x value accordingly
+		if ( measures.size() > 0 ) {
+			Rectangle2D.Double lastMeasureRect = measures.getLast().getView().getRectangle();
+			
+			measureX = lastMeasureRect.x + lastMeasureRect.width;
+		}
+		else { // else use the staff system origin
+			measureX = staffSystemRect.x;
+			
+			// Add a little room before the left side of the staff system
+			measureX += 4.0;
+		}
+		
+		// Add breathing room
+		measureY += 4.0;
+		measureHeight -= 8.0;
+		
+		// Create a fresh new rectangle with the dimensions of the containing staff system
+		Rectangle2D.Double measureRect = new Rectangle2D.Double( measureX, measureY, measureWidth, measureHeight );
+		
+		// Return the rectangle
+		return measureRect;
+	}
 	
 }

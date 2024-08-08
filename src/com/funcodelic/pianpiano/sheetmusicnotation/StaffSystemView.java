@@ -3,7 +3,8 @@ package com.funcodelic.pianpiano.sheetmusicnotation;
 import static com.funcodelic.pianpiano.sheetmusicnotation.ViewState.*;
 import java.awt.*;
 import java.awt.geom.*;
-//import java.util.List;
+import java.util.ArrayList;
+import java.util.List;
 
 //
 //	The View component of the Staff System MVC classes
@@ -16,10 +17,15 @@ class StaffSystemView extends ResizableRectangle {
 	StaveView upperStaveView;
 	StaveView lowerStaveView;
 	
+	// The measures of the system
+	List<MeasureView> measureViews;
+	
 	
 	// C'tor
 	public StaffSystemView(Rectangle2D.Double initialBounds) {
         super(initialBounds);
+        
+        measureViews = new ArrayList<MeasureView>();
     }
 	
 	public void setState(ViewState state) {
@@ -34,9 +40,15 @@ class StaffSystemView extends ResizableRectangle {
 	public void setScale( double scale ) {
 		super.setScale( scale );
 		
+		// Set the scale for the staves
 		if ( upperStaveView != null && lowerStaveView != null ) {
 			upperStaveView.setScale( scale );
 			lowerStaveView.setScale( scale );
+		}
+		
+		// Set the scale for the measures
+		for ( MeasureView measureView : measureViews ) {
+			measureView.setScale( scale );
 		}
 	}
 	
@@ -71,6 +83,10 @@ class StaffSystemView extends ResizableRectangle {
         
         updateBounds();
     }
+	
+	void addMeasureView( MeasureView measureView ) {
+		measureViews.add( measureView );
+	}
 
     @Override
     public void draw( Graphics2D g2d ) {
@@ -89,10 +105,15 @@ class StaffSystemView extends ResizableRectangle {
             g2d.draw( getRectangle() ); // Draw simple blue rectangle
         }
         
+        // Draw the staves
         if ( upperStaveView != null && lowerStaveView != null ) {
-        	// Draw the staves
             upperStaveView.draw( g2d );
             lowerStaveView.draw( g2d );
+        }
+        
+        // Draw the measures
+        for ( MeasureView measure : measureViews ) {
+        	measure.draw( g2d );
         }
         
         // Restore the original stroke

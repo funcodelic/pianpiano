@@ -1,9 +1,6 @@
 package com.funcodelic.pianpiano.sheetmusicnotation;
 
-import static com.funcodelic.pianpiano.sheetmusicnotation.ViewState.*;
-
 import java.awt.event.MouseEvent;
-
 
 //
 //	A concrete implementation of the PageInterface mouse event handling strategy
