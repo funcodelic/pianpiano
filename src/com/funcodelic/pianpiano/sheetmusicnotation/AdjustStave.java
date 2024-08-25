@@ -8,32 +8,37 @@ import java.awt.event.MouseEvent;
 //
 class AdjustStave implements PageInterface {
 	
-	// The staff lines to adjust
-	private StaveView staveView;
+	// The stave to adjust
+	private StaveController stave;
 	
 	
 	// C'tor
-	AdjustStave( StaveView staveView ) {
-		this.staveView = staveView;
+	AdjustStave( StaveController stave ) {
+		this.stave = stave;
 	}
 
 	@Override
-	public void mousePressed(MouseEvent e) {
-		staveView.startResizing(e.getPoint());
+	public void mousePressed( MouseEvent e ) {
+		stave.startResizing( e.getPoint() );
 	}
 
 	@Override
-	public void mouseDragged(MouseEvent e) {
-		staveView.resize(e.getPoint());
+	public void mouseDragged( MouseEvent e ) {
+		stave.resize( e.getPoint() );
 	}
 	
 	@Override
-	public void mouseReleased(MouseEvent e) {
-		staveView.configureStaffLines();
+	public void mouseReleased( MouseEvent e ) {
+		stave.stopResizing( e.getPoint() );
 	}
 
 	@Override
     public String toString() {
     	return "Adjust Stave";
     }
+
+	@Override
+	public void mouseMoved(MouseEvent e) {
+		// Do nothing
+	}
 }

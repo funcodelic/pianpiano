@@ -19,6 +19,9 @@ class StaffSystemInspectorPanel extends JPanel {
 	// Used to select various items of the staff system
     ButtonGroup selectionGroup;
     
+    // To select the overall staff system
+    JRadioButton staffSystemButton;
+    
     // Used to select the measures of the staff system
     ButtonGroup measureGroup;
     
@@ -30,17 +33,19 @@ class StaffSystemInspectorPanel extends JPanel {
 		
 	
 	// C'tor
-	public StaffSystemInspectorPanel( StaffSystemController system ) {
-		this.staffSystem = system;
+	public StaffSystemInspectorPanel( StaffSystemController staffSystem ) {
+		this.staffSystem = staffSystem;
 		
 		setLayout( new BorderLayout() );
 		
 		// Create and configure the title label
-        JLabel titleLabel = new JLabel( "Select to edit:" );
+        JLabel titleLabel = new JLabel( staffSystem.toString() );
         titleLabel.setForeground( Color.WHITE );
+        titleLabel.setHorizontalAlignment( SwingConstants.CENTER );
         titleLabel.setBorder( new EmptyBorder( 10, 0, 10, 0) );
-        
         add( titleLabel, BorderLayout.NORTH );
+        
+        // Create and add the radio button selection panel
 		add( createRadioButtonPanel(), BorderLayout.CENTER );
 		
 		// Create the measures panel but make it invisible
@@ -109,8 +114,7 @@ class StaffSystemInspectorPanel extends JPanel {
     private JPanel createMeasurePanel() {
     	// Create the complete Measures Panel
     	JPanel panel = new JPanel();
-    	panel.setLayout( new BorderLayout() );
-    	panel.setName("Measure Selection Panel");
+    	panel.setName( "Measure Selection Panel" );
         panel.setLayout( new BorderLayout() ); //0 rows for a dynamic list
         panel.setBackground( Color.GRAY );
         
@@ -120,7 +124,7 @@ class StaffSystemInspectorPanel extends JPanel {
         // Create the action listener to be added to each new measure's radio button
         ActionListener addMeasureListener = new ActionListener() {
             @Override
-            public void actionPerformed(ActionEvent e) {
+            public void actionPerformed( ActionEvent e ) {
             	addMeasure();
             }
         };
@@ -134,7 +138,7 @@ class StaffSystemInspectorPanel extends JPanel {
         measureButtonPanel.setBackground( Color.GRAY );
         measureButtonPanel.setLayout( new GridLayout( 0, 1, 20, 10 ) );
         //measureButtonPanel.setLayout(new BoxLayout(measureButtonPanel, BoxLayout.Y_AXIS));
-        measureButtonPanel.setAlignmentY(Component.TOP_ALIGNMENT);
+        measureButtonPanel.setAlignmentY( Component.TOP_ALIGNMENT );
         
         // Add the button to the panel
         panel.add( measureButtonPanel, BorderLayout.CENTER );
@@ -145,7 +149,7 @@ class StaffSystemInspectorPanel extends JPanel {
         // Create the action listener to be added to each new measure's radio button
         measureSelectionListener = new ActionListener() {
             @Override
-            public void actionPerformed(ActionEvent e) {
+            public void actionPerformed( ActionEvent e ) {
             	handleMeasureSelection();
             }
         };
@@ -163,17 +167,23 @@ class StaffSystemInspectorPanel extends JPanel {
 	private JPanel createRadioButtonPanel() {
         // Create a JPanel
         JPanel panel = new JPanel();
-        panel.setName("Staff System Selection Panel");
-        panel.setLayout( new GridLayout( 4, 1, 20, 20 ) ); // Set layout to GridLayout with one column and three rows
+        panel.setName( "Staff System Selection Panel" );
+        panel.setLayout( new GridLayout( 5, 1, 10, 10 ) );
+        
+        // Create and configure the title label
+        JLabel titleLabel = new JLabel( "Select to adjust:" );
+        titleLabel.setForeground( Color.WHITE );
+        //titleLabel.setBorder( new EmptyBorder( 10, 0, 10, 0) );
+        panel.add( titleLabel );
 
         // Set the background color to dark gray
         panel.setBackground( Color.GRAY );
         
         // Create radio buttons
-        JRadioButton staffSystemButton = new JRadioButton("Staff System");
-        JRadioButton upperStaffButton = new JRadioButton("Upper Staff");
-        JRadioButton lowerStaffButton = new JRadioButton("Lower Staff");
-        JRadioButton measuresButton = new JRadioButton("Measures");
+        staffSystemButton = new JRadioButton( "Staff System" );
+        JRadioButton upperStaffButton = new JRadioButton( "Upper Staff" );
+        JRadioButton lowerStaffButton = new JRadioButton( "Lower Staff" );
+        JRadioButton measuresButton = new JRadioButton( "Measures" );
         
         // Set the text color to white
         staffSystemButton.setForeground( Color.WHITE );
@@ -191,17 +201,17 @@ class StaffSystemInspectorPanel extends JPanel {
         // Define the onSelect method to determine which button was selected
         ActionListener onSelectListener = new ActionListener() {
             @Override
-            public void actionPerformed(ActionEvent e) {
+            public void actionPerformed( ActionEvent e ) {
                 JRadioButton selectedButton = (JRadioButton) e.getSource();
-                onSelect(selectedButton);
+                onSelect( selectedButton );
             }
         };
         
-        // Add the ActionListener to each radio button
-        staffSystemButton.addActionListener(onSelectListener);
-        upperStaffButton.addActionListener(onSelectListener);
-        lowerStaffButton.addActionListener(onSelectListener);
-        measuresButton.addActionListener(onSelectListener);
+        // Add the listener to each radio button
+        staffSystemButton.addActionListener( onSelectListener );
+        upperStaffButton.addActionListener( onSelectListener );
+        lowerStaffButton.addActionListener( onSelectListener );
+        measuresButton.addActionListener( onSelectListener );
         
         // Set the commands of the radio buttons
         staffSystemButton.setActionCommand( "Staff System" );
@@ -210,10 +220,10 @@ class StaffSystemInspectorPanel extends JPanel {
         measuresButton.setActionCommand( "Measures" );
 
         // Add radio buttons to the panel
-        panel.add(staffSystemButton);
-        panel.add(upperStaffButton);
-        panel.add(lowerStaffButton);
-        panel.add(measuresButton);
+        panel.add( staffSystemButton );
+        panel.add( upperStaffButton );
+        panel.add( lowerStaffButton );
+        panel.add( measuresButton );
         
         // Add a border with padding around the inspector panel
         Border etchedBorder = BorderFactory.createEtchedBorder( EtchedBorder.LOWERED );
@@ -230,8 +240,13 @@ class StaffSystemInspectorPanel extends JPanel {
 		showMeasuresPanel( false );
 	}
 	
+	public void selectStaffSystem() {
+		clearSelections();
+		staffSystemButton.setSelected( true );
+	}
+	
 	// Called when a selection is made from the selection radio button panel
-    private void onSelect(JRadioButton selectedButton) {
+    private void onSelect( JRadioButton selectedButton ) {
         // Logic to handle the selection based on the selected button
         PageInterface selectedInterface = null;
         

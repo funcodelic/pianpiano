@@ -7,8 +7,9 @@ import java.awt.event.MouseEvent;
 //
 public interface PageInterface {
 
-	void mousePressed(MouseEvent e);
-    void mouseDragged(MouseEvent e);
-    void mouseReleased(MouseEvent e);
+	void mousePressed( MouseEvent e );
+    void mouseDragged( MouseEvent e );
+    void mouseReleased( MouseEvent e );
+    void mouseMoved( MouseEvent e );
     
 }

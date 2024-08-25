@@ -19,8 +19,7 @@ class PageController implements PanelEditable, SheetMusicNode, Zoomable {
 	// The panel to inspect and configure the page
 	private PageInspectorPanel pageInspectorPanel;
 	
-	private List<StaffSystemController> staffSystemControllers;
-    private int nextStaffSystemIndex;
+	private List<StaffSystemController> staffSystems = new ArrayList<>();
     
     // TODO: DELETE THIS: for development only
     private Rectangle2D.Double rect1 = new Rectangle2D.Double(180, 395, 2400, 530);
@@ -52,21 +51,26 @@ class PageController implements PanelEditable, SheetMusicNode, Zoomable {
 
     
     // C'tor
-    public PageController(String fileImagePath, int pageNumber) {
-        model = new PageModel(fileImagePath, pageNumber);
-        view = new PageView(model.getImage());
+    PageController( String fileImagePath, int pageNumber ) {
+        model = new PageModel( fileImagePath, pageNumber );
+        view = new PageView( model.getImage() );
         
-        pageInterface = new PanPage(view.getSheetMusicPanel());
-        view.setPageInterface(pageInterface);
+        pageInterface = new PanPage( view.getSheetMusicPanel() );
+        view.setPageInterface( pageInterface );
         
-		pageInspectorPanel = new PageInspectorPanel(this);
-		
-		staffSystemControllers = new ArrayList<>();
-        nextStaffSystemIndex = 1;
+		pageInspectorPanel = new PageInspectorPanel( this );
     }
     
-    public int getPageNumber() {
+    void setPageNumber( int pageNumber ) {
+    	this.model.setPageNumber( pageNumber );
+    }
+    
+    int getPageNumber() {
         return model.getPageNumber();
+    }
+    
+    int getNumStaffSystems() {
+    	return staffSystems.size();
     }
 
     @Override
@@ -85,37 +89,46 @@ class PageController implements PanelEditable, SheetMusicNode, Zoomable {
     }
     
     // Sets the strategy to interface with the page
-    public void setPageInterface(PageInterface pageInterface) {
+    void setPageInterface( PageInterface pageInterface ) {
     	// Pass the page interface to the view
-    	view.setPageInterface(pageInterface);
+    	view.setPageInterface( pageInterface );
     }
     
-    public StaffSystemController addStaffSystem() {
-    	int index = staffSystemControllers.size();
-    	Rectangle2D.Double newRect = createStaffSystemRectangle(index);
-        StaffSystemModel model = new StaffSystemModel(nextStaffSystemIndex, newRect);
-        StaffSystemView view = new StaffSystemView(model.getBounds());
-        view.setScale(this.view.getScale()); // Set the current scale
-
-        StaffSystemController staffSystem = new StaffSystemController(model, view);
-        staffSystemControllers.add(staffSystem);
-        this.view.addStaffSystemView(view);
-
-        nextStaffSystemIndex++;
+    StaffSystemController createStaffSystem() {
+    	// Determine the index of the new staff system
+    	int index = staffSystems.size();
+    	
+    	// Get the current scale
+        double scale = this.view.getScale();
+    	
+    	// Create a bounds rectangle for the system
+    	Rectangle2D.Double rect = createStaffSystemRectangle( index );
+    	
+    	// Create the staff system
+    	StaffSystemController staffSystem = new StaffSystemController( index, rect, scale );
+    	
+    	// Add it to the list
+        staffSystems.add( staffSystem );
         
+        // Pass the page view the new staff system view for display
+        this.view.addStaffSystemView( staffSystem.getView() );
+        
+        // Return the new staff system
         return staffSystem;
     }
     
-    public List<StaffSystemController> getStaffSystems() {
-        return staffSystemControllers;
+    List<StaffSystemController> getStaffSystems() {
+        return staffSystems;
     }
 
     @Override
-    public void setScale(double scale) {
-        view.setScale(scale);
+    public void setScale( double scale ) {
+    	// Set the page view scale
+        view.setScale( scale );
         
-        for (StaffSystemController controller : staffSystemControllers) {
-            controller.getView().setScale(scale);
+        // Set the staff systems scale
+        for ( StaffSystemController staffSystem : staffSystems ) {
+        	staffSystem.setScale( scale );
         }
     }
     
@@ -135,15 +148,15 @@ class PageController implements PanelEditable, SheetMusicNode, Zoomable {
     	
     	if ( zoomIn ) {
     		int magLength = magnifications.length;
-    		Magnification highestMag = magnifications[magLength - 1];
+    		Magnification highestMag = magnifications[ magLength - 1 ];
     		int comparison = highestMag.compareTo( magnification );
     		
     		// Zoom in if there's room
     		if ( comparison > 0 ) {
-    			int currentMagIndex = getMagnificationIndex(magnification);
-    			currentMagIndex += 1;
-    			magnification = magnifications[currentMagIndex];
-    			setMagnification(magnification);
+    			int currentMagIndex = getMagnificationIndex( magnification );
+    			currentMagIndex++;
+    			magnification = magnifications[ currentMagIndex ];
+    			setMagnification( magnification );
     		}
     	}
     	else {
@@ -153,22 +166,23 @@ class PageController implements PanelEditable, SheetMusicNode, Zoomable {
     		
     		// Zoom out if there's room
     		if ( comparison < 0 ) {
-    			int currentMagIndex = getMagnificationIndex(magnification);
-    			currentMagIndex -= 1;
-    			magnification = magnifications[currentMagIndex];
-    			setMagnification(magnification);
+    			int currentMagIndex = getMagnificationIndex( magnification );
+    			currentMagIndex--;
+    			magnification = magnifications[ currentMagIndex ];
+    			setMagnification( magnification );
     		}
     	}
     }
     
     private void setMagnification(Magnification magnification) {
-    	view.setScale( magnification.getValue() );
+    	//view.setScale( magnification.getValue() );
+    	setScale( magnification.getValue() );
     }
     
-    private static int getMagnificationIndex(Magnification magnification) {
+    private static int getMagnificationIndex( Magnification magnification ) {
         Magnification[] values = Magnification.values();
-        for (int i = 0; i < values.length; i++) {
-            if (values[i] == magnification) {
+        for ( int i = 0; i < values.length; i++ ) {
+            if ( values[i] == magnification ) {
                 return i;
             }
         }
@@ -177,17 +191,16 @@ class PageController implements PanelEditable, SheetMusicNode, Zoomable {
 
 	@Override
 	public void select() {
+		// Do nothing
 	}
 	
 	@Override
 	public void deselect() {
+		// Do nothing
 	}
 	
 	// Helper method to create a new rectangle with predefined dimensions
-    public Rectangle2D.Double createStaffSystemRectangle(int index) {
-//        double width = 2400;
-//        double height = 530;
-//        return new Rectangle2D.Double(x, y, width, height);
-    	return cannedRectangles.get(index);
+    private Rectangle2D.Double createStaffSystemRectangle( int index ) {
+    	return cannedRectangles.get( index );
     }
 }

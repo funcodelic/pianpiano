@@ -132,6 +132,10 @@ class ScoreInspectorPanel extends JPanel {
         setBorder(BorderFactory.createCompoundBorder(etchedBorder, paddingBorder));
 	}
 	
+	public void focusOnNameField() {
+		nameField.requestFocus();
+	}
+	
 	public void refresh() {
 		int numPages = score.getNumberOfPages();
 		
@@ -149,5 +153,16 @@ class ScoreInspectorPanel extends JPanel {
             score.addPage(filePath);
         }
     }
+	
+	@Override
+	public String toString() {
+		return getName();
+	}
+	
+	// Transfer focus to the name field
+	@Override
+	public void requestFocus() {
+		nameField.requestFocus();
+	}
 
 }

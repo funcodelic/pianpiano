@@ -8,32 +8,35 @@ import javax.imageio.ImageIO;
 //
 //	PageModel is the Model component of the Page MVC classes
 //
-public class PageModel {
+class PageModel {
     private BufferedImage sheetMusicImage;
+    private String imagePath;
     
-    // Maintain the number of the page within the score
-    int pageNumber = -1;
+    // The number of the page within the score
+    private int pageNumber = -1;
 
-    public PageModel(String imagePath, int pageNumber) {
+    PageModel( String imagePath, int pageNumber ) {
+    	this.imagePath = imagePath;
+    	this.pageNumber = pageNumber;
+    	
+    	// Read the image into the buffered image
         try {
-            sheetMusicImage = ImageIO.read(new File(imagePath));
-        } catch (IOException e) {
+            sheetMusicImage = ImageIO.read( new File( this.imagePath ) );
+        } catch ( IOException e ) {
             e.printStackTrace();
             sheetMusicImage = null;
         }
-        
-        this.pageNumber = pageNumber;
     }
 
-    public BufferedImage getImage() {
+    BufferedImage getImage() {
         return sheetMusicImage;
     }
     
-    public void setPageNumber(int pageNumber) {
+    void setPageNumber( int pageNumber ) {
     	this.pageNumber = pageNumber;
     }
     
-    public int getPageNumber() {
+    int getPageNumber() {
     	return pageNumber;
     }
 }

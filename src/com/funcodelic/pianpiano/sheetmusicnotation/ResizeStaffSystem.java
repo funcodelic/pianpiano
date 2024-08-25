@@ -7,32 +7,37 @@ import java.awt.event.*;
 //	A concrete implementation of the PageInterface mouse event handling strategy
 //	to resize the bounds of the staff system
 //
-public class ResizeStaffSystem implements PageInterface {
+class ResizeStaffSystem implements PageInterface {
 	
 	// The staff system to resize
-    private StaffSystemView staffSystemView;
+    private StaffSystemController staffSystem;
 
     
     // C'tor
-    public ResizeStaffSystem(StaffSystemView staffSystemView) {
-        this.staffSystemView = staffSystemView;
+    ResizeStaffSystem( StaffSystemController staffSystem ) {
+        this.staffSystem = staffSystem;
     }
     
     @Override
-    public void mousePressed(MouseEvent e) {
-    	staffSystemView.startResizing(e.getPoint());
+    public void mousePressed( MouseEvent e ) {
+    	staffSystem.startResizing( e.getPoint() );
     }
 
     @Override
-    public void mouseDragged(MouseEvent e) {
-        staffSystemView.resize(e.getPoint());
+    public void mouseDragged( MouseEvent e ) {
+        staffSystem.resize( e.getPoint() );
     }
     
     @Override
-	public void mouseReleased(MouseEvent e) {
-		staffSystemView.updateBounds();
+	public void mouseReleased( MouseEvent e ) {
+		staffSystem.stopResizing( e.getPoint() );
 	}
-    
+
+	@Override
+	public void mouseMoved( MouseEvent e ) {
+		// Do nothing
+	}
+	
     @Override
     public String toString() {
     	return "Resize Staff System";

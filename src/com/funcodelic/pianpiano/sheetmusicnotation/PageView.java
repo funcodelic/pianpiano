@@ -12,13 +12,13 @@ import java.util.List;
 //	the sheet music image and all the sheet music notation objects in it
 //
 class PageView {
-
+	// View related attributes for the page
     private JScrollPane scrollPane;
     private SheetMusicPanel sheetMusicPanel;
     private BufferedImage sheetMusicImage;
     private double scale = 1.0;
 
-    // The staff system views managed by the page view
+    // The staff system views managed and drawn by the page view
     private List<StaffSystemView> staffSystemViews;
     
     // The mouse event handler strategy for interfacing with the page
@@ -26,119 +26,137 @@ class PageView {
 
     
     // C'tor
-    public PageView(BufferedImage image) {
+    PageView( BufferedImage image ) {
+    	// Store the image of the sheet music
         this.sheetMusicImage = image;
+        
+        // Create a new sheet music panel
         this.sheetMusicPanel = new SheetMusicPanel();
 
-        // Create the JScrollPane and add the inner panel
-        this.scrollPane = new JScrollPane(sheetMusicPanel);
-        this.scrollPane.getViewport().setBackground(Color.DARK_GRAY);
+        // Create the scroll pane to house the sheet music panel
+        this.scrollPane = new JScrollPane( sheetMusicPanel );
+        this.scrollPane.getViewport().setBackground( Color.DARK_GRAY );
 
+        // Instantiate the list of staff systems
         staffSystemViews = new ArrayList<>();
         
-        setPageInterface(new PanPage(sheetMusicPanel)); // Default strategy
+        // Set the page interface to this page's interface by default
+        setPageInterface( new PanPage( sheetMusicPanel ) );
     }
 
-    public void addStaffSystemView(StaffSystemView view) {
-        staffSystemViews.add(view);
+    // Add a staff system view for this page view to display
+    void addStaffSystemView( StaffSystemView view ) {
+        staffSystemViews.add( view );
         sheetMusicPanel.repaint();
     }
 
-    public List<StaffSystemView> getStaffSystemViews() {
+    List<StaffSystemView> getStaffSystemViews() {
         return staffSystemViews;
     }
 
-    public JComponent getScrollPane() {
+    JComponent getScrollPane() {
         return scrollPane;
     }
 
-    public double getScale() {
+    double getScale() {
         return scale;
     }
 
-    public void setScale(double scale) {
+    void setScale( double scale ) {
+    	// Set this view's scale
         this.scale = scale;
         
-        // Propagate scale to all StaffSystemViews
-        for (StaffSystemView staffSystemView : staffSystemViews) {
-            staffSystemView.setScale(scale);
-        }
-        
+        // Refresh the view
         sheetMusicPanel.revalidate();
         sheetMusicPanel.repaint();
     }
     
-    public void setPageInterface(PageInterface pageInterface) {
+    // Set this page's interface adapter
+    void setPageInterface( PageInterface pageInterface ) {
         this.currentPageInterface = pageInterface;
     }
 
     //
     // Inner class to hold the sheet music panel
     //
-    private class SheetMusicPanel extends JPanel {
+    class SheetMusicPanel extends JPanel {
 
         public SheetMusicPanel() {
-            setLayout(new BorderLayout());
+            setLayout( new BorderLayout() );
             
-            addMouseListener(new MouseAdapter() {
+            // Add a mouse event adapters and call the page interface methods
+            // to handle the mouse events as appropriate
+            addMouseListener( new MouseAdapter() {
                 @Override
-                public void mousePressed(MouseEvent e) {
-                    if (currentPageInterface != null) {
+                public void mousePressed( MouseEvent e ) {
+                    if ( currentPageInterface != null ) {
                         currentPageInterface.mousePressed(e);
                         repaint();
                     }
                 }
                 
                 @Override
-                public void mouseReleased(MouseEvent e) {
-                    if (currentPageInterface != null) {
+                public void mouseReleased( MouseEvent  e ) {
+                    if ( currentPageInterface != null ) {
                         currentPageInterface.mouseReleased(e);
                         repaint();
                     }
                 }
             });
 
-            addMouseMotionListener(new MouseMotionAdapter() {
+            addMouseMotionListener( new MouseMotionAdapter() {
                 @Override
-                public void mouseDragged(MouseEvent e) {
-                    if (currentPageInterface != null) {
+                public void mouseDragged( MouseEvent e ) {
+                    if ( currentPageInterface != null ) {
                         currentPageInterface.mouseDragged(e);
                         repaint();
                     }
+                }
+                
+                @Override
+                public void mouseMoved( MouseEvent e ) {
+                	if ( currentPageInterface != null ) {
+                		currentPageInterface.mouseMoved(e);
+                		repaint();
+                	}
                 }
             });
         }
 
         @Override
-        protected void paintComponent(Graphics g) {
+        protected void paintComponent( Graphics g ) { // the page's version of draw()
             super.paintComponent(g);
-            if (sheetMusicImage != null) {
+            
+            if ( sheetMusicImage != null ) {
                 Graphics2D g2d = (Graphics2D) g;
-                g2d.scale(scale, scale);
-                g2d.drawImage(sheetMusicImage, 0, 0, this);
+                
+                // Scale the graphics context to zoom in and out
+                g2d.scale( scale, scale );
+                
+                // Draw the sheet music image
+                g2d.drawImage( sheetMusicImage, 0, 0, this );
 
                 // Draw the Staff Systems
                 g2d.setColor(Color.BLUE);
-
-                for (StaffSystemView system : staffSystemViews) {
-                    system.draw(g2d);
+                for ( StaffSystemView system : staffSystemViews ) {
+                    system.draw( g2d );
                 }
             }
         }
 
         @Override
         public Dimension getPreferredSize() {
-            return sheetMusicImage == null ? super.getPreferredSize() :
-                    new Dimension((int) (sheetMusicImage.getWidth() * scale),
-                            (int) (sheetMusicImage.getHeight() * scale));
+        	return sheetMusicImage == null ? super.getPreferredSize() :
+                    new Dimension(	(int)( sheetMusicImage.getWidth() * scale ),
+                            		(int)( sheetMusicImage.getHeight() * scale ));
         }
     }
     
-    public PageInterface getCurrentPageInterface() {
+    PageInterface getCurrentPageInterface() {
     	return currentPageInterface;
     }
     
-    public SheetMusicPanel getSheetMusicPanel() {
+    SheetMusicPanel getSheetMusicPanel() {
     	return sheetMusicPanel;
     }
 }

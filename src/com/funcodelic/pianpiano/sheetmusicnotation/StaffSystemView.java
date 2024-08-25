@@ -9,114 +9,133 @@ import java.util.List;
 //
 //	The View component of the Staff System MVC classes
 //
-class StaffSystemView extends ResizableRectangle {
+class StaffSystemView {
+	
+	// The resizable rectangle that is the boundary of the staff system
+	private final ResizableRectangle resizableRect;
 
 	private ViewState state;
 	
 	// The upper and lower staves (staff lines) of the system
-	StaveView upperStaveView;
-	StaveView lowerStaveView;
+	private StaveView upperStaveView;
+	private StaveView lowerStaveView;
 	
 	// The measures of the system
-	List<MeasureView> measureViews;
+	private List<MeasureView> measureViews;
 	
 	
 	// C'tor
-	public StaffSystemView(Rectangle2D.Double initialBounds) {
-        super(initialBounds);
+	StaffSystemView( ResizableRectangle resizableRectangle, 
+						StaveView upperStaveView, 
+						StaveView lowerStaveView ) {
+		// Store the resizable rectangle
+		this.resizableRect = resizableRectangle;
+		
+		// Store the staves
+		this.upperStaveView = upperStaveView;
+		this.lowerStaveView = lowerStaveView;
         
+		// Instantiate the list of measures
         measureViews = new ArrayList<MeasureView>();
     }
 	
-	public void setState(ViewState state) {
+	Rectangle2D.Double getRectangle() {
+		return resizableRect.getRectangle();
+	}
+	
+	void setState( ViewState state ) {
 		this.state = state;
     }
 	
-	public ViewState getState() {
+	ViewState getState() {
 		return state;
 	}
 	
-	@Override
-	public void setScale( double scale ) {
-		super.setScale( scale );
-		
-		// Set the scale for the staves
-		if ( upperStaveView != null && lowerStaveView != null ) {
-			upperStaveView.setScale( scale );
-			lowerStaveView.setScale( scale );
-		}
-		
-		// Set the scale for the measures
-		for ( MeasureView measureView : measureViews ) {
-			measureView.setScale( scale );
-		}
+	boolean isEditing() {
+		return state == EDITING;
 	}
-	
-	public void updateBounds() {
-		Rectangle2D.Double staffSystemRect = getRectangle();
-		double fullHeight = staffSystemRect.height;
-		double fullWidth  = staffSystemRect.width;
-		
-		// Both staves
-		final double WIDTH_SPACE = 16.0;
-		double staveWidth = fullWidth - WIDTH_SPACE;
-		double staveHeight = fullHeight / 5.0;
-		double staveXPos = staffSystemRect.x + WIDTH_SPACE / 2.0;
-		
-		// Upper stave
-		double upperYPos = staffSystemRect.y + staveHeight;
-		Rectangle2D.Double upperRect = new Rectangle2D.Double( staveXPos, upperYPos, staveWidth, staveHeight );
-		upperStaveView.setRectangle( upperRect );
-		
-		// Lower stave
-		double lowerYPos = staffSystemRect.y + staveHeight * 3.0;
-		Rectangle2D.Double lowerRect = new Rectangle2D.Double( staveXPos, lowerYPos, staveWidth, staveHeight );
-		lowerStaveView.setRectangle( lowerRect );
-	}
-	
-	public void setStaveViews( StaveView upperStaveView, StaveView lowerStaveView ) {
-        this.upperStaveView = upperStaveView;
-        this.upperStaveView.setScale( scale );
-        
-        this.lowerStaveView = lowerStaveView;
-        this.lowerStaveView.setScale( scale );
-        
-        updateBounds();
-    }
 	
 	void addMeasureView( MeasureView measureView ) {
 		measureViews.add( measureView );
 	}
 
-    @Override
-    public void draw( Graphics2D g2d ) {
-    	// Save the original stroke
+	// Draw the staff system and its staves and measures
+    void draw( Graphics2D g2d ) {
+    	// Save the original color and stroke
+    	Color originalColor = g2d.getColor();
         Stroke originalStroke = g2d.getStroke();
         
         // Set the stroke size according to the scale
-        float strokeWidth = (float) ( 2.0 / scale );
+        float strokeWidth = (float) ( 2.0 / resizableRect.getScale() );
         g2d.setStroke( new BasicStroke( strokeWidth ) );
     	
-        // Draw depending on the editing state
-        if ( state == EDITING ) {
-            super.draw( g2d ); // Draw resizable rectangle with handles
-        } else {
-            g2d.setColor( Color.BLUE );
-            g2d.draw( getRectangle() ); // Draw simple blue rectangle
+        //
+        // Draw the staff system
+        //
+        if ( state != HIDDEN ) {
+        	if ( state == EDITING ) {
+        		// Draw the rectangle in blue
+        		g2d.setColor( Color.BLUE );
+        		g2d.draw( resizableRect.getRectangle() );
+        		
+        		// Draw the resize handles in red
+        		g2d.setColor( Color.RED );
+        		
+        		// Origin offset from the center point
+                int originOffset = (int)( resizableRect.getScaledHandleSize() / 2.0 );
+                
+                // Handle size accounting for the scale
+                int scaledHandleSize = (int)resizableRect.getScaledHandleSize();
+                
+                for ( Point handle : resizableRect.getHandles() ) {
+                	g2d.fillRect( handle.x - originOffset, 
+                    			  handle.y - originOffset, 
+                    			  scaledHandleSize, 
+                    			  scaledHandleSize );
+                }
+            } else {
+            	if ( state == VIEWING ) {
+            		g2d.setColor( Color.BLUE );
+            	}
+            	else if ( state == GRAYED ) {
+            		g2d.setColor( Color.LIGHT_GRAY );
+            	}
+                
+                g2d.draw( resizableRect.getRectangle() );
+            }
         }
         
+        //
         // Draw the staves
+        //
         if ( upperStaveView != null && lowerStaveView != null ) {
             upperStaveView.draw( g2d );
             lowerStaveView.draw( g2d );
         }
         
+        //
         // Draw the measures
+        //
+        // Capture the measure being edited to draw it last so it appears on top
+        MeasureView measureBeingEdited = null;
+        
         for ( MeasureView measure : measureViews ) {
+        	if ( measure.isEditing() ) {
+        		measureBeingEdited = measure;
+        		continue;
+        	}
+        	
+        	// Draw the non-editing measures
         	measure.draw( g2d );
         }
         
-        // Restore the original stroke
+        // Draw the measure being edited last so it appears on top of the others
+        if ( measureBeingEdited != null ) {
+        	measureBeingEdited.draw( g2d );
+        }
+        
+        // Restore the original color and stroke
+        g2d.setColor( originalColor );
         g2d.setStroke( originalStroke );
     }
     

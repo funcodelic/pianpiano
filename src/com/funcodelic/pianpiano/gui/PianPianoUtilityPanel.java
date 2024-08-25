@@ -47,6 +47,16 @@ class PianPianoUtilityPanel extends JPanel implements NodeAdder {
 		}
 	}
 	
+	// Gives focus to the first child component of the utility panel
+	public void focus() {
+		Component[] children = getComponents();
+		if ( children != null && children.length > 0 ) {
+			Component child = children[0];
+			
+			child.requestFocus();
+		}
+	}
+	
 	@Override
 	public String toString() {
 		return "Utility Panel";
