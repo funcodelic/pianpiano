@@ -8,29 +8,33 @@ import java.awt.event.*;
 class SlideMeasure implements PageInterface {
 	
 	// The measure to slide
-	private MeasureView measureView;
+	private MeasureController measure;
 	
 	
 	// C'tor
-	SlideMeasure( MeasureView measureView ) {
-		this.measureView = measureView;
+	SlideMeasure( MeasureController measure ) {
+		this.measure = measure;
 	}
 
 	@Override
-	public void mousePressed(MouseEvent e) {
-		measureView.startResizing(e.getPoint());
+	public void mousePressed( MouseEvent e ) {
+		measure.startResizing( e.getPoint() );
 	}
 
 	@Override
-	public void mouseDragged(MouseEvent e) {
-		measureView.resize(e.getPoint());
+	public void mouseDragged( MouseEvent e ) {
+		measure.resize( e.getPoint() );
 	}
 	
 	@Override
-	public void mouseReleased(MouseEvent e) {
-		// Do nothing
+	public void mouseReleased( MouseEvent e ) {
+		measure.stopResizing( e.getPoint() );
 	}
 
+	@Override
+	public void mouseMoved( MouseEvent e ) {
+		// Do nothing
+	}
 	@Override
     public String toString() {
     	return "Slide Measure";

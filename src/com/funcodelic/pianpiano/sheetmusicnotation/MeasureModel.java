@@ -1,29 +1,26 @@
 package com.funcodelic.pianpiano.sheetmusicnotation;
 
+import java.awt.Point;
 import java.awt.geom.Rectangle2D;
 
 //
 //	The Measure model class of the MVC paradigm
 //
 class MeasureModel {
-	
-	private Rectangle2D.Double rectangle;
+	// The rectangle that is the bounds of the measure
+	private HorizontallyResizableRectangle rectangle;
     
-	private int index; // zero-based index
+	// The index, zero-based
+	private int index;
 	
 	
 	// C'tor
-	MeasureModel( Rectangle2D.Double rectangle, int index ) {
-		this.rectangle = rectangle;
+	MeasureModel( int index, Rectangle2D.Double rectangle, double scale ) {
+		this.rectangle = new HorizontallyResizableRectangle( rectangle, scale );
 		this.index = index;
-		
 	}
 	
-	void setRectangle( Rectangle2D.Double rectangle ) {
-		this.rectangle = rectangle;
-	}
-	
-	Rectangle2D.Double getRectangle() {
+	HorizontallyResizableRectangle getRectangle() {
 		return rectangle;
 	}
 	
@@ -31,9 +28,30 @@ class MeasureModel {
 		return index;
 	}
 	
+	int getMeasureNumber() {
+		return index + 1;
+	}
+	
+	void setScale( double scale ) {
+    	rectangle.setScale( scale );
+    }
+    
+    double getScale() {
+    	return rectangle.getScale();
+    }
+	
+	void startResizing( Point p ) {
+		rectangle.startResizing( p );
+    }
+    
+    void resize( Point p ) {
+    	// Resize the rectangle
+    	rectangle.resize( p );
+    }
+	
 	@Override
 	public String toString() {
-		return "Measure " + Integer.toString( index + 1 );
+		return "Measure " + getMeasureNumber();
 	}
 
 }

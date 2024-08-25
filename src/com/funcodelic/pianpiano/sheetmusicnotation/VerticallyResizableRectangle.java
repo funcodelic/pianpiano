@@ -1,6 +1,7 @@
 package com.funcodelic.pianpiano.sheetmusicnotation;
 
 import java.awt.*;
+import java.awt.geom.Line2D;
 import java.awt.geom.Rectangle2D;
 
 //
@@ -8,51 +9,75 @@ import java.awt.geom.Rectangle2D;
 //
 class VerticallyResizableRectangle {
     private Rectangle2D.Double rectangle;
-    private static final int HANDLE_SIZE = 10;
+    private final int HANDLE_SIZE = 10;
     private int handleIndex = -1;
     private Point dragStart;
-    protected double scale = 1.0;
+    private double scale = 1.0;
+    
+    // lines
+    private final int NUMBER_OF_LINES = 5;
+    private final Line2D.Double[] lines = new Line2D.Double[NUMBER_OF_LINES];
+    
 
-    public VerticallyResizableRectangle(Rectangle2D.Double rectangle) {
+    // C'tor
+    VerticallyResizableRectangle( Rectangle2D.Double rectangle, double scale ) {
         this.rectangle = rectangle;
+        this.scale = scale;
+        
+        for ( int i = 0; i < NUMBER_OF_LINES; i++ ) {
+        	lines[i] = new Line2D.Double();
+        }
+    }
+    
+    Line2D.Double[] getLines() {
+    	double x1Pos = rectangle.x;
+        double x2Pos = rectangle.x + rectangle.width;
+        double yPos;
+        
+        double vGap = rectangle.height / (double)( NUMBER_OF_LINES - 1 );
+        
+        for ( int i = 0; i < NUMBER_OF_LINES; i++ ) {
+        	yPos = rectangle.y + ( (double)i * vGap );
+        	
+        	lines[i].x1 = x1Pos;
+        	lines[i].x2 = x2Pos;
+        	lines[i].y1 = yPos;
+        	lines[i].y2 = yPos;
+        }
+    	
+    	return lines;
+    }
+    
+    float getScaledStroke() {
+    	return 2.0f / (float)scale;
     }
 
-    public void setScale(double scale) {
+    void setScale( double scale ) {
         this.scale = scale;
     }
 
-    public double getScale() {
+    double getScale() {
         return scale;
     }
 
-    public void draw(Graphics2D g2d) {
-        // Draw the resize handles
-        g2d.setColor(Color.RED);
-        for (Point handle : getHandles()) {
-            int scaledHandleSize = (int) (HANDLE_SIZE / scale);
-            g2d.fillRect(handle.x - scaledHandleSize / 2, handle.y - scaledHandleSize / 2, scaledHandleSize, scaledHandleSize);
+    void startResizing( Point point ) {
+        handleIndex = getHandleIndex( point );
+        
+        if ( handleIndex != -1 ) {
+            dragStart = point;
         }
     }
 
-    public void startResizing(Point point) {
-        Point scaledPoint = new Point((int) (point.x / scale), (int) (point.y / scale));
-        handleIndex = getHandleIndex(scaledPoint);
-        if (handleIndex != -1) {
-            dragStart = scaledPoint;
-        }
-    }
+    void resize( Point point ) {
+        if ( dragStart == null || handleIndex == -1 ) return;
 
-    public void resize(Point point) {
-        if (dragStart == null || handleIndex == -1) return;
+        int dy = point.y - dragStart.y;
 
-        Point scaledPoint = new Point((int) (point.x / scale), (int) (point.y / scale));
-        int dy = scaledPoint.y - dragStart.y;
-
-        switch (handleIndex) {
+        switch ( handleIndex ) {
             case 0: // Top-left
             case 1: // Top-center
             case 2: // Top-right
-                if (rectangle.height - dy >= 40) {
+                if ( rectangle.height - dy >= 40 ) {
                     rectangle.y += dy;
                     rectangle.height -= dy;
                 }
@@ -60,45 +85,52 @@ class VerticallyResizableRectangle {
             case 3: // Bottom-left
             case 4: // Bottom-center
             case 5: // Bottom-right
-                if (rectangle.height + dy >= 40) {
+                if ( rectangle.height + dy >= 40 ) {
                     rectangle.height += dy;
                 }
                 break;
         }
-        dragStart = scaledPoint;
+        dragStart = point;
     }
 
-    public void stopResizing() {
+    void stopResizing() {
         handleIndex = -1;
     }
 
-    public int getHandleIndex(Point point) {
-        for (int i = 0; i < getHandles().length; i++) {
+    int getHandleIndex( Point point ) {
+    	for ( int i = 0; i < getHandles().length; i++ ) {
             Point handle = getHandles()[i];
-            if (point.distance(handle) < HANDLE_SIZE / scale) {
+            
+            double handleRadius = (double)getScaledHandleSize() / 2.0;
+            if ( point.distance( handle ) < handleRadius ) {
                 return i;
             }
         }
         return -1;
     }
+    
+    int getScaledHandleSize() {
+    	int scaledHandleSize = (int)( (double)HANDLE_SIZE / scale );
+    	return scaledHandleSize;
+    }
 
-    public Cursor getCursor(Point point) {
-        int index = getHandleIndex(point);
-        switch (index) {
+    Cursor getCursor( Point point ) {
+        int index = getHandleIndex( point );
+        switch ( index ) {
             case 0:
             case 1:
             case 2:
-                return Cursor.getPredefinedCursor(Cursor.N_RESIZE_CURSOR);
+                return Cursor.getPredefinedCursor( Cursor.N_RESIZE_CURSOR );
             case 3:
             case 4:
             case 5:
-                return Cursor.getPredefinedCursor(Cursor.S_RESIZE_CURSOR);
+                return Cursor.getPredefinedCursor( Cursor.S_RESIZE_CURSOR );
             default:
                 return Cursor.getDefaultCursor();
         }
     }
 
-    private Point[] getHandles() {
+    Point[] getHandles() {
         Point[] handles = new Point[6];
         handles[0] = new Point((int) rectangle.x, (int) rectangle.y); // Top-left
         handles[1] = new Point((int) (rectangle.x + rectangle.width / 2), (int) rectangle.y); // Top-center
@@ -110,11 +142,8 @@ class VerticallyResizableRectangle {
         return handles;
     }
 
-    public Rectangle2D.Double getRectangle() {
+    Rectangle2D.Double getRectangle() {
         return rectangle;
     }
-    
-    public void setRectangle(Rectangle2D.Double rect) {
-    	this.rectangle = rect;
-    }
+
 }

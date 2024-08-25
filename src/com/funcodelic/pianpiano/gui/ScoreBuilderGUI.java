@@ -127,6 +127,10 @@ public class ScoreBuilderGUI extends JFrame implements NodeAdder {
 				editorPanel.repaint();
 			}
 		});//end addTreeSelectionListener()
+		
+		// Set the focus in the utility panel
+		utilityPanel.focus();
+		
 	}//end createNewScore()
 	
 	private void newObjectSelected(TreePath path) {
@@ -169,10 +173,7 @@ public class ScoreBuilderGUI extends JFrame implements NodeAdder {
 	}
 	
 	public void zoomIn( boolean zoomIn ) { // false = zoom out
-		if ( selectedObject instanceof Zoomable ) {
-			Zoomable zoomable = (Zoomable) selectedObject;
-			zoomable.zoom(zoomIn);
-		}
+		theScore.zoomIn( selectedNode, zoomIn );
 	}
 	
 	private void turnThePage(int currentPage) {

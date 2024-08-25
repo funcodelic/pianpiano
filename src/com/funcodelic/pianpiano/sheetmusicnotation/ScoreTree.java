@@ -36,6 +36,9 @@ public class ScoreTree extends JTree {
  		
  		// Set the selection mode to SINGLE_TREE_SELECTION
         getSelectionModel().setSelectionMode(TreeSelectionModel.SINGLE_TREE_SELECTION);
+        
+        // Disallow focus to prevent selection highlight
+        setFocusable( false );
 	}
 	
 	// Update the root node
@@ -44,11 +47,14 @@ public class ScoreTree extends JTree {
     }
 	
 	// Add a page node
-	public void addPageNode(Object pageObj, int pageIndex) {
+	public void addPageNode( Object pageObj, int pageIndex ) {
 		// Create a new page node and add it to the root
-		MutableTreeNode pageNode = new DefaultMutableTreeNode(pageObj);
-		root.insert(pageNode, pageIndex);
+		DefaultMutableTreeNode pageNode = new DefaultMutableTreeNode( pageObj );
+		root.insert( pageNode, pageIndex );
 		treeModel.reload();
+		
+		// Select the new page node
+		setSelectionPath( new TreePath( pageNode.getPath() ) );
 	}
 	
 	// Add a node to a parent node
@@ -62,14 +68,23 @@ public class ScoreTree extends JTree {
         TreePath parentPath = new TreePath(parentNode.getPath());
         expandPath(parentPath);
         
-        // Create a path to the new node
-        TreePath childNodePath = parentPath.pathByAddingChild(childNode);
-        
-        // Select the new node
-        //setSelectionPath(childNodePath);
-        
-        // Make sure the new node is visible
-        //scrollPathToVisible(childNodePath);
+        //
+        // TODO: FIX THIS!!!
+        // When the user creates a new staff system on a page,
+        // select the staff system and put it into editing mode
+        // to encourage the user to focus on finalizing its configuration
+        // before adding another staff system or configuring the next page
+        //
+        if ( childObject instanceof StaffSystemController ) {
+        	// Create a path to the new node
+            TreePath childNodePath = parentPath.pathByAddingChild(childNode);
+            
+            // Select the new node
+            setSelectionPath(childNodePath);
+            
+            // Make sure the new node is visible
+            scrollPathToVisible(childNodePath);
+        }
         
         // Expand the tree
         expandAllNodes();

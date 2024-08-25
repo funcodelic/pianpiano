@@ -1,32 +1,61 @@
 package com.funcodelic.pianpiano.sheetmusicnotation;
 
+import java.awt.Point;
 import java.awt.geom.Rectangle2D;
 
 //
 //	The Staff System model class of the MVC paradigm
 //
 class StaffSystemModel {
+	// The staff system bounds
+	private final ResizableRectangle resizableRect;
     private int index;
-    private Rectangle2D.Double bounds;
+    
+    // The number of the page within the score
+    int numberOnPage = -1;
+    
 
-    public StaffSystemModel(int index, Rectangle2D.Double bounds) {
+    // C'tor
+    StaffSystemModel( int index, Rectangle2D.Double bounds, double scale ) {
+        this.resizableRect = new ResizableRectangle( bounds, scale );
         this.index = index;
-        this.bounds = bounds;
+        this.numberOnPage = index + 1;
+    }
+    
+    int getNumberOnPage() {
+    	return numberOnPage;
     }
 
-    public int getIndex() {
+    int getIndex() {
         return index;
     }
 
-    public void setIndex(int index) {
+    void setIndex(int index) {
         this.index = index;
     }
-
-    public Rectangle2D.Double getBounds() {
-        return bounds;
+    
+    void startResizing( Point p ) {
+    	resizableRect.startResizing( p );
+    }
+    
+    void resize( Point p ) {
+    	resizableRect.resize( p );
+    }
+    
+    void setScale( double scale ) {
+    	resizableRect.setScale( scale );
+    }
+    
+    double getScale() {
+    	return resizableRect.getScale();
     }
 
-    public void setBounds(Rectangle2D.Double bounds) {
-        this.bounds = bounds;
+    ResizableRectangle getResizableRect() {
+        return resizableRect;
+    }
+    
+    @Override
+    public String toString() {
+    	return "Staff System " + getNumberOnPage();
     }
 }

@@ -94,6 +94,17 @@ public class ScoreController implements PanelEditable, SheetMusicNode {
         // Refresh the inspector panel
         scoreInspectorPanel.refresh();
     }
+    
+    public void zoomIn( DefaultMutableTreeNode node, boolean zoomIn ) { // false = zoom out
+    	// Get the page the currently selected node is on
+		TreePath nodePath = new TreePath( node.getPath() );
+		PageController page = findPage( nodePath );
+		
+		if ( page != null && page instanceof Zoomable ) {
+			Zoomable zoomable = (Zoomable) page;
+			zoomable.zoom(zoomIn);
+		}
+    }
 	
     @Override
 	public JPanel getPanelEditableView() {
@@ -179,6 +190,8 @@ public class ScoreController implements PanelEditable, SheetMusicNode {
 		}
 		else if ( pageNumber > 0 && pageNumber <= pages.size() ) {
 			int pageIndex = pageNumber -1;
+			
+			// Otherwise return the panel of the requested page number
 			return pages.get(pageIndex).getPanelEditableView();
 		}
 		else {
