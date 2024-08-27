@@ -12,6 +12,9 @@ class NoteModel {
 	// The staff the note is on (false = lower staff)
 	private boolean isUpperStaff;
 	
+	// The note's key/pitch
+	String pitch;
+	
 	
 	// C'tor
     NoteModel( boolean isUpperStaff, Point center, double diameter, double scale ) {
@@ -20,6 +23,14 @@ class NoteModel {
         
         // Set the staff
         this.isUpperStaff = isUpperStaff;
+    }
+    
+    void setPitch( String pitch ) {
+    	this.pitch = pitch;
+    }
+    
+    String getPitch() {
+    	return pitch;
     }
     
     boolean isUpperStaff() {
@@ -36,6 +47,10 @@ class NoteModel {
 	
 	boolean isSelected() {
 		return noteBody.isSelected();
+	}
+	
+	double getCenterY() {
+		return noteBody.getCenter().getY();
 	}
     
     void setNoteLocation( Point p ) {

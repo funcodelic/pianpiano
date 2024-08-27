@@ -4,6 +4,7 @@ import java.awt.*;
 import javax.swing.*;
 import com.funcodelic.pianpiano.sheetmusicnotation.NodeAdder;
 import com.funcodelic.pianpiano.sheetmusicnotation.PageInterface;
+import com.funcodelic.pianpiano.virtualpiano.VirtualPiano;
 
 //
 //	Utility panel used to inspect and configure sheet music entities

@@ -1,5 +1,6 @@
 import javax.swing.*;
 import com.funcodelic.pianpiano.gui.ScoreBuilderGUI;
+import com.funcodelic.pianpiano.virtualpiano.VirtualPiano;
 
 //
 //	The main entry point for the Score Builder/Editor GUI
@@ -15,6 +16,14 @@ public class PianPiano {
             	scoreBuilderGUI.go();
             }
         });
+        
+        JFrame frame = new JFrame("PianoView");
+        VirtualPiano pianoView = new VirtualPiano();
+        frame.add(pianoView);
+        frame.pack();
+        frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        frame.setVisible(true);
+
         
 	}//end main()
 

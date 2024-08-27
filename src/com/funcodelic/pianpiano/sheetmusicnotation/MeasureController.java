@@ -1,5 +1,6 @@
 package com.funcodelic.pianpiano.sheetmusicnotation;
 
+import javax.sound.midi.*;
 import java.awt.Point;
 import java.awt.geom.Rectangle2D;
 import java.util.ArrayList;
@@ -123,8 +124,67 @@ class MeasureController implements SheetMusicNode {
 			
 			// Add the note to the list
 			notes.add( selectedNote );
+			
+			// Determine the note's stave
+			StaveController stave = selectedNote.isUpperStaff() ? upperStave : lowerStave;
+			
+			// Get the MIDI key for the note
+			int midiKey = stave.getMidiKeyForNote( selectedNote );
+			
+			// Set the note's pitch
+			int keyIndex = stave.getKeyIndex( selectedNote );
+			String pitch = stave.getPitch( keyIndex );
+			
+			System.out.println( "note has key index " + keyIndex + " and pitch " + pitch );
+			
+			// Play the note
+			playNote( midiKey );
 		}
 	}
+	
+	// Method to play a single MIDI note (Middle C as a quarter note)
+    public void playNote( int midiKey ) {
+    	
+    	// Constant for Middle C (MIDI note number 60)
+        //final int MIDDLE_C = 60;
+        
+        // Quarter note duration in milliseconds (assuming 120 bpm)
+        final int QUARTER_NOTE_DURATION = 3000;
+        
+        // Control Change number for sustain pedal
+        final int SUSTAIN_PEDAL = 64;
+        
+        try {
+            // Get and open the synthesizer
+            Synthesizer synth = MidiSystem.getSynthesizer();
+            synth.open();
+
+            // Get the default channel from the synthesizer (usually channel 0)
+            MidiChannel[] channels = synth.getChannels();
+            MidiChannel channel = channels[0];
+            
+            // Press the sustain pedal (CC 64 with value 127)
+            channel.controlChange(SUSTAIN_PEDAL, 127);
+            
+            // Print the note being played for debugging
+            System.out.println("Playing MIDI Key: " + midiKey);
+
+            // Play the note (Middle C) with velocity (volume) of 80
+            channel.noteOn(midiKey, 80);
+
+            // Sleep for the duration of a quarter note
+            Thread.sleep(QUARTER_NOTE_DURATION);
+
+            // Turn off the note after the duration
+            channel.noteOff(midiKey);
+
+            // Close the synthesizer
+            synth.close();
+            
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
 	
 	void previewNotePlacement( Point p ) {
 		// Scale the point's coordinates to the logical dimensions of the measure

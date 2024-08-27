@@ -4,6 +4,8 @@ import java.awt.*;
 import javax.swing.*;
 import javax.swing.border.*;
 
+import com.funcodelic.pianpiano.virtualpiano.VirtualPiano;
+
 //
 //	Represents the toolbar to display prompts and score tree paths
 //
@@ -27,7 +29,7 @@ class PianPianoToolbarPanel extends JPanel {
 	public void setView( JComponent view ) {
     	removeAll();
         currentView = view;
-        add(currentView, BorderLayout.CENTER);
+        add(currentView, BorderLayout.NORTH);
         revalidate();
         repaint();
     }

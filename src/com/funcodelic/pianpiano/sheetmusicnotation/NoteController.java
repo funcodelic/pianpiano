@@ -22,12 +22,25 @@ class NoteController {
 		return model.isUpperStaff();
 	}
 	
+	void setPitch( String pitch ) {
+		System.out.println( "pitch: " + pitch );
+		model.setPitch( pitch );
+	}
+	
+	String getPitch() {
+		return model.getPitch();
+	}
+	
 	NoteModel getModel() {
 		return model;
 	}
 	
 	NoteView getView() {
 		return view;
+	}
+	
+	double getCenterY() {
+		return model.getCenterY();
 	}
 	
 	void setNoteLocation( Point p ) {

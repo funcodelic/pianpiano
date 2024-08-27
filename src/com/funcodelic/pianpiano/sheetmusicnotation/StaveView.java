@@ -151,47 +151,47 @@ class StaveView {
 	        //
 	        // Draw the key lines
 	        //
-//	        if ( showKeyLines ) {
-//	        	// x start and stop values
-//		        int xStart = (int) vertResizableRect.getRectangle().getX();
-//		        int xStop  = xStart + 20;
-//		        
-//		        // Bump the lines to the right for the lower staff
-//		        if ( !isUpperStave() ) {
-//		        	xStart += 40;
-//			        xStop += 40;
-//		        }
-//		        
-//		        g2d.setStroke( new BasicStroke( 2 ) );
-//		        
-//		        // The color to draw the line
-//		        Color keyLineColor = keyColors[0];
-//		        
-//		        // Draw the key lines
-//	        	for ( int i = 0; i < keyYVals.length; i++ ) {
-//		        	//keyLineColor = keyColors[ i % 22 ];
-//	        		keyLineColor = Color.blue;
-//		        	
-//		        	// Draw the half lines light gray
-//		        	if ( i % 2 == 0 ) { 
-//		        		keyLineColor = Color.LIGHT_GRAY;
-//		        	}
-//		        	
-//		        	// Make the G4 line of the upper staff and 
-//		        	// F2 of the lower staff stand out
-//		        	if ( isUpperStave() && i == 43 || !isUpperStave() && i == 21 ) {
-//		        		keyLineColor = Color.GREEN;
-//		        	}
-//		        	
-//		        	// Set the color
-//		        	g2d.setColor( keyLineColor );
-//			        
-//		        	// Get the y val
-//		        	int yVal = (int)keyYVals[i];
-//		        	
-//		        	g2d.drawLine( xStart, yVal, xStop, yVal );
-//			    }
-//	        }
+	        if ( showKeyLines && isUpperStave ) {
+	        	// x start and stop values
+		        int xStart = (int) vertResizableRect.getRectangle().getX();
+		        int xStop  = xStart + 20;
+		        
+		        // Bump the lines to the right for the lower staff
+		        if ( !isUpperStave() ) {
+		        	xStart += 40;
+			        xStop += 40;
+		        }
+		        
+		        g2d.setStroke( new BasicStroke( 2 ) );
+		        
+		        // The color to draw the line
+		        Color keyLineColor = keyColors[0];
+		        
+		        // Draw the key lines
+	        	for ( int i = 0; i < keyYVals.length; i++ ) {
+		        	//keyLineColor = keyColors[ i % 22 ];
+	        		keyLineColor = Color.blue;
+		        	
+		        	// Draw the half lines light gray
+		        	if ( i % 2 == 0 ) { 
+		        		keyLineColor = Color.LIGHT_GRAY;
+		        	}
+		        	
+		        	// Make the G4 line of the upper staff and 
+		        	// F2 of the lower staff stand out
+		        	if ( isUpperStave() && i == 43 || !isUpperStave() && i == 21 ) {
+		        		keyLineColor = Color.GREEN;
+		        	}
+		        	
+		        	// Set the color
+		        	g2d.setColor( keyLineColor );
+			        
+		        	// Get the y val
+		        	int yVal = (int)keyYVals[i];
+		        	
+		        	g2d.drawLine( xStart, yVal, xStop, yVal );
+			    }
+	        }
 	        
 	        // Restore the original stroke and color
 	        g2d.setStroke( originalStroke );

@@ -3,7 +3,6 @@ package com.funcodelic.pianpiano.sheetmusicnotation;
 import static com.funcodelic.pianpiano.sheetmusicnotation.ViewState.*;
 
 import java.awt.*;
-import java.awt.geom.*;
 import java.util.ArrayList;
 import java.util.List;
 

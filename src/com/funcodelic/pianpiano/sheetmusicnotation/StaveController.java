@@ -26,6 +26,18 @@ class StaveController { // Stave Controller is a sheet music node
 		pageInterface = new AdjustStave( this );
 	}
 	
+	int getMidiKeyForNote( NoteController note ) {
+		return model.getMidiKeyForNote( note );
+	}
+	
+	String getPitch( int keyIndex ) {
+		return model.getPitch( keyIndex );
+	}
+	
+	int getKeyIndex( NoteController note ) {
+		return model.getKeyIndex( note );
+	}
+	
 	StaveView getView() {
         return view;
     }
@@ -82,7 +94,7 @@ class StaveController { // Stave Controller is a sheet music node
 	// Adjustment method
 	void startResizing( Point p ) {
 		// DEBUG: Don't show the key lines while resizing
-		//view.showKeyLines( false );
+		view.showKeyLines( false );
 		
 		// Scale the point to the logical dimensions of the rectangle and start resizing
 		if ( isEditing() ) {
@@ -107,7 +119,7 @@ class StaveController { // Stave Controller is a sheet music node
 		view.setKeyYVals( model.getKeyYVals() );
 		
 		// DEBUG: Show the key lines after resizing
-		//view.showKeyLines( true );
+		view.showKeyLines( true );
 	}
 	
 	private Point getScaledPoint( Point p ) {

@@ -22,7 +22,15 @@ class StaveModel {
 	private final double[] staffLineYPositions = new double[NUMBER_OF_STAFF_LINES];
 	
 	// Y values for the keys for fast look-up
+	private final int NUMBER_OF_KEYS = 88;
 	private double[] keyYVals = new double[88];
+	
+	// The MIDI key values for the upper and lower staves
+	private int[] upperStaffMidiKeyVals = new int[NUMBER_OF_KEYS];
+	private int[] lowerStaffMidiKeyVals = new int[NUMBER_OF_KEYS];
+	
+	// Note names
+	private String[] keyboardKeys = new String[NUMBER_OF_KEYS];
 	
 	
 	// C'tor
@@ -35,6 +43,126 @@ class StaveModel {
 		
 		// Calculate the staff line positions
 		calculateStaffLineYPositions();
+		
+		// Initialize the MIDI key values
+		initializeMidiKeyValues();
+		
+		// Initialize the array of keyboard keys
+		initializeKeyboardKeys();
+	}
+	
+	int getKeyIndex( NoteController note ) {
+		return findClosestKey( note.getCenterY() );
+	}
+	
+	int getMidiKeyForNote( NoteController note ) {
+		int midiKey = 0;
+		
+		// Find the closest key index
+		int keyIndex = findClosestKey( note.getCenterY() );
+		System.out.println( "keyIndex: " + keyIndex );
+		
+		// Get the MIDI key from the index
+		midiKey = note.isUpperStaff() ? upperStaffMidiKeyVals[keyIndex] : lowerStaffMidiKeyVals[keyIndex];
+		
+		return midiKey;
+	}
+	
+	private void initializeMidiKeyValues() {
+		//
+		// Upper staff
+		//
+		// MIDI values for keys starting from A0 (MIDI 21) up to C8 (MIDI 108)
+		for ( int i = 0; i < NUMBER_OF_KEYS; i++ ) {
+		    upperStaffMidiKeyVals[i] = 21 + i;  // A0 corresponds to MIDI 21
+		}
+
+		// Modify based on key signature of C# minor: F♯, C♯, G♯, D♯
+		for (int i = 0; i < NUMBER_OF_KEYS; i++) {
+		    int midiVal = upperStaffMidiKeyVals[i];
+		    int noteInOctave = midiVal % 12;  // 12 notes per octave in MIDI
+		    switch (noteInOctave) {
+		        case 5: // F
+		        case 0: // C
+		        case 8: // G
+		        case 2: // D
+		            upperStaffMidiKeyVals[i] = midiVal + 1;  // Sharp notes
+		            break;
+		    }
+		}
+		
+		//
+		// Lower staff
+		//
+		// MIDI values for keys starting from A0 (MIDI 21) up to C8 (MIDI 108)
+		for ( int i = 0; i < NUMBER_OF_KEYS; i++ ) {
+		    lowerStaffMidiKeyVals[i] = 21 + i;  // A0 corresponds to MIDI 21
+		}
+
+		// Modify based on key signature of C# minor: F♯, C♯, G♯, D♯
+		for ( int i = 0; i < NUMBER_OF_KEYS; i++ ) {
+		    int midiVal = lowerStaffMidiKeyVals[i];
+		    int noteInOctave = midiVal % 12;  // 12 notes per octave in MIDI
+		    switch (noteInOctave) {
+		        case 5: // F
+		        case 0: // C
+		        case 8: // G
+		        case 2: // D
+		            lowerStaffMidiKeyVals[i] = midiVal + 1;  // Sharp notes
+		            break;
+		    }
+		}
+	}
+	
+	String getPitch( int keyIndex ) {
+		if ( keyIndex > 0 && keyIndex < NUMBER_OF_KEYS ) {
+			return keyboardKeys[keyIndex];
+		}
+		else {
+			return "out of range";
+		}
+	}
+	
+	String[] initializeKeyboardKeys() {
+		// Array of note names in an octave (excluding octave number)
+	    String[] noteNames = {"A", "A♯/B♭", "B", "C", "C♯/D♭", "D", "D♯/E♭", "E", "F", "F♯/G♭", "G", "G♯/A♭"};
+
+	    // Total number of keys on a standard piano
+	    final int NUMBER_OF_KEYS = 88;
+	    
+	    // Array to hold the names of the keys
+	    //keyboardKeys = new String[NUMBER_OF_KEYS];
+	    
+	    // Start with octave 0 for A0 and B0
+	    int octave = 0;
+	    
+	    // Initialize index for the keyboard keys array
+	    int keyIndex = 0;
+	    
+	    // Loop through the keys and assign note names and octaves
+	    for ( int i = 0; i < NUMBER_OF_KEYS; i++ ) {
+	        // Assign the key name with its octave
+	        keyboardKeys[i] = noteNames[keyIndex] + octave;
+	        
+	        // Move to the next note in the octave
+	        keyIndex++;
+	        
+	        // When we reach the end of the B note (before C), increment the octave
+	        if ( noteNames[keyIndex - 1].equals("B") ) {
+	            octave++;
+	        }
+	        
+	        // Reset the note name index after G♯/A♭ and continue with the next octave
+	        if ( keyIndex == noteNames.length ) {
+	            keyIndex = 0; // Reset for the next cycle through note names
+	        }
+	    }
+	    
+	    for ( int i = 0; i < NUMBER_OF_KEYS; i++ ) {
+	    	System.out.println( "key index " + i + " = " + keyboardKeys[i] );
+	    }
+	    
+	    return keyboardKeys;
 	}
 	
 	VerticallyResizableRectangle getVertResizableRect() {
@@ -179,6 +307,23 @@ class StaveModel {
 	    
 	    // Return the nearest y value
 	    return nearestY;
+	}
+	
+	private int findClosestKey( double centerY ) {
+	    int closestKeyIndex = 0;  // Initialize with the first key (A0)
+	    double minDistance = Math.abs( centerY - keyYVals[0] );  // Calculate initial distance
+
+	    // Loop through the keyYVals array to find the closest key
+	    for ( int i = 1; i < keyYVals.length; i++ ) {
+	        double distance = Math.abs( centerY - keyYVals[i] );
+	        
+	        if ( distance < minDistance ) {
+	            minDistance = distance;  // Update the minimum distance
+	            closestKeyIndex = i;     // Update the closest key index
+	        }
+	    }
+
+	    return closestKeyIndex;  // Return the index of the closest key
 	}
 	
     void setScale( double scale ) {
